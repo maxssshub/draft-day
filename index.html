@@ -1243,6 +1243,34 @@ html:has(#screen-draft:not(.hidden))::after{opacity:.07;}
 .pcard .coach-photo-wrap img{object-position:center 15%;}
 .pcard .coach-photo-wrap::before{content:"";position:absolute;left:0;right:0;top:0;height:84px;background:linear-gradient(180deg,rgba(13,16,24,.62),transparent);z-index:3;pointer-events:none;}
 .coach-card .pcard .card-name{font-size:17px;}
+/* duel by link */
+.duel-banner{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-top:16px;padding:14px 16px;border:1px solid var(--wood-dim);border-radius:14px;background:linear-gradient(135deg,rgba(217,142,43,.12),transparent 70%),var(--panel2);}
+.duel-banner-kicker{font:800 11px/1 'IBM Plex Mono',monospace;letter-spacing:1.5px;color:var(--wood);}
+.duel-banner-title{font-family:'Anton',sans-serif;font-size:22px;letter-spacing:1px;margin-top:5px;}
+.duel-banner-copy{font-size:12px;color:var(--text-dim);margin-top:3px;max-width:420px;}
+.duel-form{max-width:420px;margin:18px auto 0;}
+.duel-label{display:block;font:700 11px/1 'IBM Plex Mono',monospace;letter-spacing:1.5px;color:var(--text-dim);text-transform:uppercase;margin:14px 0 6px;text-align:left;}
+.duel-input{width:100%;box-sizing:border-box;padding:12px 14px;border-radius:10px;border:1px solid var(--line);background:var(--panel);color:var(--text);font:600 14px/1.2 inherit;}
+.duel-input:focus{outline:none;border-color:var(--wood);}
+.duel-score{font-family:'Anton',sans-serif;font-size:34px;letter-spacing:1px;margin:10px 0 4px;color:var(--text-dim);display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+.duel-score .w,.duel-game .w{color:var(--teal);}
+.duel-games{display:flex;flex-direction:column;gap:6px;margin:16px 0;}
+.duel-game{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 8px;padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:var(--panel2);font-size:13px;color:var(--text-dim);}
+.duel-game .w{font-weight:700;}
+.duel-game-n{font:700 11px/1 'IBM Plex Mono',monospace;color:var(--wood);min-width:22px;}
+.duel-game-dash{color:var(--text-dim);}
+.duel-game-star{margin-left:auto;font-size:12px;}
+.duel-teams{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px;}
+@media(max-width:620px){.duel-teams{grid-template-columns:1fr;}}
+.duel-team{border:1px solid var(--line);border-radius:12px;background:var(--panel2);padding:12px;}
+.duel-team-name{font-family:'Anton',sans-serif;font-size:20px;letter-spacing:1px;}
+.duel-team-meta{font-size:11px;color:var(--text-dim);margin:4px 0 8px;line-height:1.4;}
+.duel-team-meta b{color:var(--wood);}
+.duel-row{display:flex;align-items:center;gap:8px;padding:5px 0;border-top:1px solid var(--line);font-size:13px;}
+.duel-row.bench{color:var(--text-dim);}
+.duel-pos{font:700 11px/1 'IBM Plex Mono',monospace;color:var(--text-dim);width:22px;}
+.duel-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.duel-r{font:700 13px/1 'IBM Plex Mono',monospace;}
 .photo-credits{margin-top:10px;font-size:11px;color:var(--text-dim);text-align:left;}
 .photo-credits summary{cursor:pointer;text-align:center;}
 .photo-credits ul{margin:8px 0 0;padding-left:18px;line-height:1.5;}
@@ -1286,6 +1314,9 @@ html:has(#screen-draft:not(.hidden))::after{opacity:.07;}
       </button>
     </div>
   </div>
+
+  <!-- DUEL SCREEN (incoming challenge / finished series) -->
+  <div id="screen-duel" class="panel hidden"><div id="duelScreenBody"></div></div>
 
   <!-- TEAM SELECTION SCREEN -->
   <div id="screen-team" class="panel hidden">
@@ -1430,6 +1461,7 @@ html:has(#screen-draft:not(.hidden))::after{opacity:.07;}
         <div class="simulate-loader-text" id="simulateLoaderText">Generating the schedule…</div>
       </div>
       <button class="btn" id="simulateSeasonBtn" onclick="runSeasonSimulation()">SIMULATE SEASON</button>
+      <div class="duel-slot" style="margin-top:18px;text-align:left;"></div>
     </div>
   </div>
 
@@ -1498,6 +1530,8 @@ html:has(#screen-draft:not(.hidden))::after{opacity:.07;}
       <div class="stat-box"><div class="num" id="finalChem">--%</div><div class="lbl">Roster Chemistry</div></div>
       <div class="stat-box"><div class="num" id="finalBenchDepth">--</div><div class="lbl">Bench Depth</div></div>
     </div>
+
+    <div class="duel-slot"></div>
 
     <div id="payrollPanel" style="margin-top:16px;"></div>
 
@@ -2538,10 +2572,10 @@ function offseasonFinanceHtml(){
   html += line(`<b>New payroll: ${fmtM(total)}</b> · ${status.label}${isRepeaterTaxpayer()?' · <b>repeater taxpayer</b>':''}. ${payrollRuleNote(status)}`);
   return html;
 }
-function showCapToast(text){
+function showCapToast(text, kicker){
   let el=document.getElementById('capToast');
   if(!el){ el=document.createElement('div'); el.id='capToast'; el.className='chem-flavor-toast'; document.body.appendChild(el); }
-  el.innerHTML=`<div class="chem-flavor-kicker">SALARY CAP</div><div class="chem-flavor-text">${text}</div>`;
+  el.innerHTML=`<div class="chem-flavor-kicker">${kicker||'SALARY CAP'}</div><div class="chem-flavor-text">${text}</div>`;
   requestAnimationFrame(()=>el.classList.add('show'));
   clearTimeout(showCapToast._t);
   showCapToast._t=setTimeout(()=>el.classList.remove('show'),3200);
@@ -2896,6 +2930,332 @@ function renderFranchiseUI(){
   if(logo) logo.innerHTML = selectedTeam ? `<img src="${NBA_LOGO_URL(selectedTeam.id)}" alt="${selectedTeam.name}" onerror="teamLogoFailed(this,'${NAME_TO_ABBR[selectedTeam.name]||''}')">` : '';
 }
 
+/* ---------------- DUEL BY LINK ----------------
+   No server involved. Every draft is dealt from a seed, so two people with the same seed and mode
+   open the same packs. A challenge link carries the seed, the mode and the challenger's roster;
+   the friend drafts from the same packs and the two rosters play a best-of-7 that is itself
+   seeded by both rosters — so both sides always see the same series. */
+const DUEL_PUBLIC_URL = 'https://maxssshub.github.io/draft-day/';
+let draftSeed = '';        // seed of the current draft
+let pendingDuel = null;    // incoming challenge: {seed, mode, code, roster}
+let duelSnapshot = '';     // my roster as drafted, encoded (taken when the draft ends)
+let duelLast = null;       // last series shown: {a, b, result, viewer}
+
+function hashStr(s){
+  let h = 2166136261;
+  for(let i=0;i<s.length;i++){ h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
+  return h >>> 0;
+}
+function mulberry32(a){
+  return function(){
+    a |= 0; a = a + 0x6D2B79F5 | 0;
+    let t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+function newDraftSeed(){
+  let s = '';
+  for(let i=0;i<7;i++) s += Math.floor(Math.random()*36).toString(36);
+  return s;
+}
+function seededRng(key){ return mulberry32(hashStr(draftSeed + '|' + gameMode + '|' + key)); }
+function seededShuffle(arr, key){
+  const rng = seededRng(key), copy = arr.slice();
+  for(let i=copy.length-1;i>0;i--){ const j = Math.floor(rng()*(i+1)); [copy[i],copy[j]] = [copy[j],copy[i]]; }
+  return copy;
+}
+// The same slot always shuffles the same way; players you already own are skipped,
+// so two drafts with one seed see the same pack unless their own picks force a swap.
+function seededPick(arr, key, n){
+  const shuffled = seededShuffle(arr, key);
+  const free = shuffled.filter(p=>!usedNames.has(p.n));
+  return (free.length>=n ? free : shuffled).slice(0, n);
+}
+
+/* ----- encoding a roster into a link ----- */
+function duelNameIndex(){
+  if(!duelNameIndex.cache){
+    const names = [...new Set(Object.values(POOL).flat().map(p=>p.n))].sort();
+    duelNameIndex.cache = {names, fp: hashStr(names.join('|')).toString(36).padStart(4,'0').slice(-4)};
+  }
+  return duelNameIndex.cache;
+}
+function duelPlayerByName(name){
+  for(const pos of POSITIONS){ const p = (POOL[pos]||[]).find(x=>x.n===name); if(p) return {...p, pos}; }
+  return null;
+}
+const b36 = (n, w) => Math.max(0, n|0).toString(36).padStart(w, '0').slice(-w);
+function b64urlEncode(str){
+  const bytes = new TextEncoder().encode(str);
+  let bin = ''; bytes.forEach(b=>{ bin += String.fromCharCode(b); });
+  return btoa(bin).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+}
+function b64urlDecode(str){
+  const bin = atob(str.replace(/-/g,'+').replace(/_/g,'/'));
+  return new TextDecoder().decode(Uint8Array.from(bin, c=>c.charCodeAt(0)));
+}
+function duelPlayerName(){
+  let name = '';
+  try{ name = localStorage.getItem('dd_duel_name') || ''; }catch(e){}
+  if(!name){ try{ name = window.Telegram.WebApp.initDataUnsafe.user.first_name || ''; }catch(e){} }
+  return (name || 'Player').slice(0,16);
+}
+function saveDuelPlayerName(name){
+  const clean = String(name||'').replace(/[<>&"']/g,'').trim().slice(0,16) || 'Player';
+  try{ localStorage.setItem('dd_duel_name', clean); }catch(e){}
+  return clean;
+}
+// v · seed(7) · mode(1) · team(2) · coach(2) · captain slot(1) · 5 starters(2 each) · bench count(1) + bench(2 each) · pool fingerprint(4) · name length(2) + name
+function encodeDuelRoster(name){
+  const idx = duelNameIndex();
+  const id = p => b36(idx.names.indexOf(p.n), 2);
+  const starters = POSITIONS.map(pos=>squad[pos]);
+  if(starters.some(p=>!p || idx.names.indexOf(p.n)<0)) return '';
+  const benchList = (bench||[]).filter(p=>idx.names.indexOf(p.n)>=0).slice(0,5);
+  const capSlot = captain ? POSITIONS.findIndex(pos=>squad[pos] && squad[pos].n===captain.n) : -1;
+  const teamIdx = selectedTeam ? NBA_TEAMS_2026.findIndex(t=>t.id===selectedTeam.id) : 0;
+  const coachIdx = coach ? COACH_POOL.findIndex(c=>c.n===coach.n) : -1;
+  const nm = b64urlEncode(saveDuelPlayerName(name || duelPlayerName()));
+  return '1' + draftSeed.padStart(7,'0').slice(-7) + (gameMode==='current'?'c':'a') + b36(Math.max(0,teamIdx),2)
+    + (coachIdx<0 ? 'zz' : b36(coachIdx,2)) + (capSlot<0 ? '9' : String(capSlot))
+    + starters.map(id).join('') + String(benchList.length) + benchList.map(id).join('')
+    + idx.fp + b36(nm.length,2) + nm;
+}
+// Returns {roster, rest} or null when the text is not a roster this version understands.
+function decodeDuelRoster(code){
+  try{
+    const idx = duelNameIndex();
+    let i = 0; const take = n => { const s = code.substr(i, n); if(s.length<n) throw new Error('short'); i += n; return s; };
+    if(take(1)!=='1') return null;
+    const seed = take(7), mode = take(1)==='c' ? 'current' : 'alltime';
+    const team = NBA_TEAMS_2026[parseInt(take(2),36)] || NBA_TEAMS_2026[0];
+    const coachCode = take(2), capSlot = parseInt(take(1),10);
+    const player = () => { const p = duelPlayerByName(idx.names[parseInt(take(2),36)]); if(!p) throw new Error('player'); return p; };
+    const starters = POSITIONS.map(pos=>({...player(), pos}));
+    const benchCount = parseInt(take(1),10);
+    const benchList = []; for(let k=0;k<benchCount;k++) benchList.push(player());
+    if(take(4)!==idx.fp) return {error:'version'};
+    const nameLen = parseInt(take(2),36), name = b64urlDecode(take(nameLen)).replace(/[<>&"']/g,'').slice(0,16) || 'Player';
+    const roster = {seed, mode, team, name, starters, bench: benchList,
+      coach: coachCode==='zz' ? null : (COACH_POOL[parseInt(coachCode,36)] || null),
+      captain: capSlot>=0 && capSlot<5 ? starters[capSlot] : null, code: code.slice(0, i)};
+    return {roster, rest: code.slice(i)};
+  }catch(e){ return null; }
+}
+// Team power of any roster, measured with the same formula the season uses.
+function duelRosterPower(r){
+  const saved = {squad, bench, coach, captain, mod: frontOfficeChemistryModifier};
+  try{
+    squad = {}; POSITIONS.forEach((pos,i)=>{ squad[pos] = r.starters[i]; });
+    bench = r.bench.slice(); coach = r.coach; captain = r.captain; frontOfficeChemistryModifier = 0;
+    const power = rosterPowerFromVisibleState(0), chem = computeChemistry().pct;
+    return {power, chem};
+  } finally {
+    squad = saved.squad; bench = saved.bench; coach = saved.coach; captain = saved.captain; frontOfficeChemistryModifier = saved.mod;
+  }
+}
+// Best-of-7, 2-2-1-1-1; the stronger roster has home court. Fully determined by the two rosters.
+function simulateDuel(a, b){
+  const rng = mulberry32(hashStr('duel|' + a.code + '|' + b.code));
+  const pa = duelRosterPower(a), pb = duelRosterPower(b);
+  const aHome = pa.power >= pb.power;
+  const homeOrder = [1,1,0,0,1,0,1].map(h => h ? aHome : !aHome); // true = game at A's arena
+  const games = []; let wa = 0, wb = 0;
+  for(let g=0; g<7 && wa<4 && wb<4; g++){
+    const atA = homeOrder[g];
+    const edge = (pa.power - pb.power) + (atA ? 1.5 : -1.5);
+    const aWins = rng() < 1/(1+Math.exp(-edge/4.5));
+    const margin = 1 + Math.floor(Math.pow(rng(), 1.6) * 20);
+    const loser = 92 + Math.floor(rng()*22), winnerPts = loser + margin;
+    const side = aWins ? a : b;
+    const weights = side.starters.map(p=>Math.pow(Math.max(1, p.r-68), 2));
+    let roll = rng() * weights.reduce((s,w)=>s+w, 0), star = side.starters[0];
+    for(let k=0;k<weights.length;k++){ roll -= weights[k]; if(roll<=0){ star = side.starters[k]; break; } }
+    if(aWins) wa++; else wb++;
+    games.push({n:g+1, atA, aWins, aPts: aWins ? winnerPts : loser, bPts: aWins ? loser : winnerPts, star: star.n, starPts: 22 + Math.floor(rng()*24)});
+  }
+  return {games, wa, wb, aWon: wa>wb, pa, pb};
+}
+
+/* ----- links, sharing ----- */
+function duelBaseUrl(){ return location.protocol==='file:' ? DUEL_PUBLIC_URL : location.origin + location.pathname; }
+function duelChallengeLink(code){ return duelBaseUrl() + '#duel=' + code; }
+function duelResultLink(a, b){ return duelBaseUrl() + '#duelres=' + a.code + b.code; }
+function openDuelModal(html){
+  const backdrop=document.getElementById('seasonEventBackdrop'), modal=document.getElementById('seasonEventModal');
+  if(!backdrop||!modal) return;
+  modal.innerHTML = html;
+  backdrop.classList.add('show'); backdrop.setAttribute('aria-hidden','false');
+}
+function closeDuelModal(){
+  const backdrop=document.getElementById('seasonEventBackdrop'), modal=document.getElementById('seasonEventModal');
+  if(!backdrop||!modal) return;
+  backdrop.classList.remove('show'); backdrop.setAttribute('aria-hidden','true'); modal.innerHTML='';
+}
+function duelCopyLink(){
+  const input=document.getElementById('duelLinkInput'), btn=document.getElementById('duelCopyBtn');
+  if(!input) return;
+  const done = () => { if(btn) btn.textContent = 'COPIED ✓'; };
+  input.select();
+  if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(input.value).then(done, ()=>{ try{ document.execCommand('copy'); done(); }catch(e){} });
+  else { try{ document.execCommand('copy'); done(); }catch(e){} }
+}
+function duelShareLink(text){
+  const input=document.getElementById('duelLinkInput'); if(!input) return;
+  if(navigator.share) navigator.share({title:'DRAFT DAY duel', text, url: input.value}).catch(()=>{});
+  else duelCopyLink();
+}
+function duelShareTelegram(text){
+  const input=document.getElementById('duelLinkInput'); if(!input) return;
+  const url = 'https://t.me/share/url?url=' + encodeURIComponent(input.value) + '&text=' + encodeURIComponent(text);
+  const tg = window.Telegram && window.Telegram.WebApp;
+  if(tg && tg.initData && tg.openTelegramLink) tg.openTelegramLink(url); else window.open(url, '_blank', 'noopener');
+}
+function duelShareModalHtml(title, copy, link, text){
+  const safeText = text.replace(/'/g,'’');
+  return `<div class="season-event-kicker">⚔ DUEL BY LINK</div>
+    <div class="season-event-title">${title}</div>
+    <div class="season-event-copy">${copy}</div>
+    <input class="duel-input" id="duelLinkInput" readonly value="${link}" onclick="this.select()" aria-label="Link">
+    <div class="season-event-actions" style="flex-wrap:wrap;">
+      <button class="btn" id="duelCopyBtn" onclick="duelCopyLink()">COPY LINK</button>
+      <button class="btn ghost" onclick="duelShareTelegram('${safeText}')">TELEGRAM</button>
+      ${navigator.share ? `<button class="btn ghost" onclick="duelShareLink('${safeText}')">SHARE…</button>` : ''}
+    </div>
+    <div class="season-event-actions"><button class="btn ghost" onclick="closeDuelModal()">CLOSE</button></div>`;
+}
+// Challenger: ask for a name, then show the link.
+function openDuelChallenge(){
+  if(!duelSnapshot){ showCapToast('Finish a draft first — the duel uses the roster you drafted.', 'DUEL'); return; }
+  openDuelModal(`<div class="season-event-kicker">⚔ DUEL BY LINK</div>
+    <div class="season-event-title">CHALLENGE A FRIEND</div>
+    <div class="season-event-copy">Your friend opens the same packs you just did (${gameMode==='current'?'Current':'All-Time'} mode), drafts a team, and the two rosters play a best-of-7. Your roster stays hidden until they finish drafting.</div>
+    <label class="duel-label" for="duelNameInput">Your name</label>
+    <input class="duel-input" id="duelNameInput" maxlength="16" value="${duelPlayerName()}">
+    <div class="season-event-actions"><button class="btn ghost" onclick="closeDuelModal()">CANCEL</button><button class="btn" onclick="createDuelLink()">CREATE LINK</button></div>`);
+}
+function createDuelLink(){
+  const name = saveDuelPlayerName((document.getElementById('duelNameInput')||{}).value);
+  const nm = b64urlEncode(name), code = duelSnapshotBase() + b36(nm.length,2) + nm;
+  duelSnapshot = code;
+  openDuelModal(duelShareModalHtml('SEND THIS LINK', `Whoever opens it gets your packs and plays a series against your team. When they finish, ask them to send the result link back.`, duelChallengeLink(code), `${name} challenges you to a DRAFT DAY duel — same packs, best-of-7. Can you build a better team?`));
+}
+// Snapshot without its trailing name block.
+function duelSnapshotBase(){
+  const parsed = decodeDuelRoster(duelSnapshot);
+  if(!parsed || !parsed.roster) return duelSnapshot;
+  const nm = b64urlEncode(parsed.roster.name);
+  return duelSnapshot.slice(0, duelSnapshot.length - nm.length - 2);
+}
+function takeDuelSnapshot(){
+  if(capYear!==0 || !draftSeed) return;
+  duelSnapshot = encodeDuelRoster();
+  renderDuelSlots();
+}
+
+/* ----- screens ----- */
+function duelSlotHtml(){
+  if(!duelSnapshot || capYear!==0) return '';
+  if(pendingDuel && !pendingDuel.done){
+    return `<div class="duel-banner"><div><div class="duel-banner-kicker">⚔ DUEL</div><div class="duel-banner-title">${pendingDuel.roster.name} is waiting</div><div class="duel-banner-copy">Your roster is drafted from the same packs. Play the best-of-7 now.</div></div><button class="btn" onclick="playPendingDuel()">PLAY THE SERIES</button></div>`;
+  }
+  return `<div class="duel-banner"><div><div class="duel-banner-kicker">⚔ DUEL BY LINK</div><div class="duel-banner-title">Challenge a friend</div><div class="duel-banner-copy">Same packs for both of you, then a best-of-7 between the two rosters.</div></div><button class="btn ghost" onclick="openDuelChallenge()">CREATE CHALLENGE</button></div>`;
+}
+function renderDuelSlots(){ document.querySelectorAll('.duel-slot').forEach(el=>{ el.innerHTML = duelSlotHtml(); }); }
+
+function showDuelIntro(){
+  const d = pendingDuel, el = document.getElementById('duelScreenBody'); if(!d || !el) return;
+  el.innerHTML = `<div class="team-select-head">
+      <div class="season-label">⚔ DUEL BY LINK · ${d.mode==='current'?'CURRENT':'ALL-TIME'}</div>
+      <div class="team-select-title">${d.roster.name} CHALLENGES YOU</div>
+      <p>You get exactly the same packs ${d.roster.name} opened. Draft your ten, then your team plays a best-of-7 against theirs. Their roster stays hidden until you are done.</p>
+    </div>
+    <div class="duel-form">
+      <label class="duel-label" for="duelMyName">Your name</label>
+      <input class="duel-input" id="duelMyName" maxlength="16" value="${duelPlayerName()}">
+      <div class="actions-row"><button class="btn" onclick="acceptDuel()">ACCEPT THE DUEL</button><button class="btn ghost" onclick="declineDuel()">Play solo instead</button></div>
+    </div>`;
+  showScreen('screen-duel');
+}
+function acceptDuel(){
+  saveDuelPlayerName((document.getElementById('duelMyName')||{}).value);
+  chooseGameMode(pendingDuel.mode);
+}
+function declineDuel(){
+  pendingDuel = null;
+  try{ history.replaceState(null, '', location.pathname + location.search); }catch(e){}
+  renderModeScreen(); showScreen('screen-mode');
+}
+function playPendingDuel(){
+  if(!pendingDuel || !duelSnapshot) return;
+  const base = duelSnapshotBase(), nm = b64urlEncode(duelPlayerName());
+  const mine = decodeDuelRoster(base + b36(nm.length,2) + nm);
+  if(!mine || !mine.roster) return;
+  pendingDuel.done = true;
+  const a = pendingDuel.roster, b = mine.roster;
+  try{ history.replaceState(null, '', location.pathname + location.search + '#duelres=' + a.code + b.code); }catch(e){}
+  showDuelResult(a, b, 'b');
+}
+function duelRosterHtml(r, info, isYou){
+  const rows = r.starters.map(p=>`<div class="duel-row"><span class="duel-pos">${p.pos}</span><span class="duel-name">${p.n}${p.leg?' ★':''}</span><span class="duel-r">${p.r}</span></div>`).join('')
+    + r.bench.map(p=>`<div class="duel-row bench"><span class="duel-pos">${p.pos}</span><span class="duel-name">${p.n}</span><span class="duel-r">${p.r}</span></div>`).join('');
+  return `<div class="duel-team"><div class="duel-team-name">${r.name}${isYou?' <span class="cap-status good">YOU</span>':''}</div>
+    <div class="duel-team-meta">${r.team.name} · power <b>${info.power.toFixed(1)}</b> · chem ${info.chem}%${r.coach?` · coach ${r.coach.n}`:''}</div>${rows}</div>`;
+}
+function showDuelResult(a, b, viewer){
+  const res = simulateDuel(a, b), el = document.getElementById('duelScreenBody'); if(!el) return;
+  duelLast = {a, b, result: res, viewer};
+  const winner = res.aWon ? a : b;
+  const youWon = viewer==='b' ? !res.aWon : null;
+  const headline = youWon===null ? `${winner.name} WINS THE DUEL` : (youWon ? 'YOU WIN THE DUEL' : `${a.name} WINS THE DUEL`);
+  const games = res.games.map(g=>`<div class="duel-game"><span class="duel-game-n">G${g.n}</span><span class="${g.aWins?'w':''}">${a.name} ${g.aPts}</span><span class="duel-game-dash">–</span><span class="${g.aWins?'':'w'}">${g.bPts} ${b.name}</span><span class="duel-game-star">★ ${shortName(g.star)} ${g.starPts} pts</span></div>`).join('');
+  el.innerHTML = `<div class="team-select-head">
+      <div class="season-label">⚔ DUEL · BEST OF 7 · ${a.mode==='current'?'CURRENT':'ALL-TIME'}</div>
+      <div class="team-select-title">${headline}</div>
+      <div class="duel-score"><span class="${res.aWon?'w':''}">${a.name} ${res.wa}</span><span class="duel-game-dash">—</span><span class="${res.aWon?'':'w'}">${res.wb} ${b.name}</span></div>
+      <p>Same packs, two front offices. Home court went to the stronger roster.</p>
+    </div>
+    <div class="duel-games">${games}</div>
+    <div class="duel-teams">${duelRosterHtml(a, res.pa, false)}${duelRosterHtml(b, res.pb, viewer==='b')}</div>
+    <div class="actions-row">
+      ${viewer==='b' ? `<button class="btn" onclick="openDuelResultShare()">SEND RESULT TO ${a.name}</button><button class="btn ghost" onclick="showScreen('screen-results')">Back to my roster</button>`
+                     : `<button class="btn" onclick="declineDuel()">PLAY DRAFT DAY</button>`}
+    </div>`;
+  showScreen('screen-duel');
+  renderDuelSlots();
+}
+function openDuelResultShare(){
+  if(!duelLast) return;
+  const {a, b, result} = duelLast;
+  const line = `${b.name} ${result.wb}–${result.wa} ${a.name}`;
+  openDuelModal(duelShareModalHtml('SEND THE RESULT', `The link shows this exact series and both rosters to ${a.name}.`, duelResultLink(a, b), `DRAFT DAY duel is over: ${line}. See the series and both rosters.`));
+}
+// Reads a challenge or a finished duel from the address (or from a Telegram start parameter).
+function readDuelFromLocation(){
+  let kind = '', code = '';
+  const hash = (location.hash||'').replace(/^#/, '');
+  if(hash.startsWith('duelres=')){ kind='res'; code = hash.slice(8); }
+  else if(hash.startsWith('duel=')){ kind='duel'; code = hash.slice(5); }
+  else {
+    let sp = '';
+    try{ sp = window.Telegram.WebApp.initDataUnsafe.start_param || ''; }catch(e){}
+    if(sp.startsWith('duelres')){ kind='res'; code = sp.slice(7); }
+    else if(sp.startsWith('duel')){ kind='duel'; code = sp.slice(4); }
+  }
+  if(!kind) return false;
+  const first = decodeDuelRoster(code);
+  if(!first || first.error || !first.roster){
+    showCapToast(first && first.error==='version' ? 'This duel link was made in another version of the game.' : 'This duel link is broken.', 'DUEL');
+    return false;
+  }
+  if(kind==='duel'){ pendingDuel = {seed:first.roster.seed, mode:first.roster.mode, roster:first.roster, done:false}; showDuelIntro(); return true; }
+  const second = decodeDuelRoster(first.rest);
+  if(!second || !second.roster){ showCapToast('This duel link is broken.', 'DUEL'); return false; }
+  showDuelResult(first.roster, second.roster, 'view');
+  return true;
+}
+
 /* ---------------- INITIAL SCREEN ---------------- */
 // The mode picker is the first screen, the franchise picker follows.
 window.addEventListener('DOMContentLoaded', ()=>{
@@ -2903,8 +3263,9 @@ window.addEventListener('DOMContentLoaded', ()=>{
   loadDynastyMeta();
   loadRunNumberCache();
   renderTeamChoices();
-  showScreen('screen-mode');
+  if(!readDuelFromLocation()) showScreen('screen-mode');
 });
+window.addEventListener('hashchange', ()=>{ readDuelFromLocation(); });
 
 /* ---------------- SCREEN CONTROL ---------------- */
 
@@ -2915,8 +3276,8 @@ function triggerBonusAfterPick(next){
 }
 
 function showScreen(id){
-  document.body.classList.toggle('in-game', !['screen-mode','screen-team','screen-start'].includes(id));
-  ['screen-mode','screen-start','screen-team','screen-draft','screen-simulate','screen-awards','screen-results','screen-playoffs','screen-history','screen-collection','screen-hof','screen-share','screen-trade'].forEach(s=>{
+  document.body.classList.toggle('in-game', !['screen-mode','screen-team','screen-start','screen-duel'].includes(id));
+  ['screen-mode','screen-duel','screen-start','screen-team','screen-draft','screen-simulate','screen-awards','screen-results','screen-playoffs','screen-history','screen-collection','screen-hof','screen-share','screen-trade'].forEach(s=>{
     const el=document.getElementById(s);
     if(!el) return;
     const shouldShow=s===id;
@@ -2935,6 +3296,8 @@ function startDraft(keepDaily=false){
   if(!keepDaily) { dailyChallengeMode=false; dailySeed=''; dailyRng=null; }
   currentRunNumber=nextRunNumber(); rarePullsLoaded=false;
   capYear = 0; contractBook = {}; taxSeasons = []; lastOffseasonFinance = null;
+  if(pendingDuel && !pendingDuel.done && gameMode!==pendingDuel.mode){ gameMode = pendingDuel.mode; renderModeScreen(); }
+  draftSeed = (pendingDuel && !pendingDuel.done) ? pendingDuel.seed : newDraftSeed(); duelSnapshot = '';
   squad = {}; currentIdx = 0; packRevealed = false; usedNames = new Set(); lastSeasonGames=[]; lastSeasonWins=0; lastSeasonLosses=0; seasonAwards=null; seasonSimulationStarted=false; tradeDeadlineActive=false; tradeDeadlineEvent=null;
   frontOfficeHistory = []; frontOfficeUsedThisSeason = 0; frontOfficeChemistryModifier = 0;
   bench = []; benchIdx = 0; selectedSwap = null;
@@ -2970,9 +3333,7 @@ function openCoachPack(){
   box.onclick=revealCoachPack; stage.appendChild(box);
 }
 function revealCoachPack(){
-  coachOptions=[...COACH_POOL];
-  for(let i=coachOptions.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[coachOptions[i],coachOptions[j]]=[coachOptions[j],coachOptions[i]];}
-  coachOptions=coachOptions.slice(0,5);
+  coachOptions=seededShuffle(COACH_POOL,'coach').slice(0,5);
   const stage=document.getElementById('coachPackStage'); stage.innerHTML='';
   const row=document.createElement('div'); row.className='cards-row'; stage.appendChild(row);
   coachOptions.forEach((p,idx)=>{
@@ -3011,12 +3372,7 @@ function openCaptainPack(){
 }
 
 function revealCaptainPack(){
-  captainOptions = [...CAPTAIN_POOL];
-  for(let i=captainOptions.length-1;i>0;i--){
-    const j=Math.floor(Math.random()*(i+1));
-    [captainOptions[i],captainOptions[j]]=[captainOptions[j],captainOptions[i]];
-  }
-  captainOptions = captainOptions.slice(0,5);
+  captainOptions = seededShuffle(CAPTAIN_POOL,'captain').slice(0,5);
   markPlayersSeen(captainOptions);
 
   const stage = document.getElementById('captainPackStage');
@@ -3194,9 +3550,9 @@ function posNeedNote(pos){
 }
 
 function revealPack(pos){
-  currentOptions=pickN(draftPool(pos),5);markPlayersSeen(currentOptions);
+  currentOptions=seededPick(draftPool(pos),'pack:'+pos,5);markPlayersSeen(currentOptions);
   const stage=document.getElementById('packStage');stage.innerHTML='';const row=document.createElement('div');row.className='cards-row';stage.appendChild(row);
-  const mysteryIndex=Math.random()<.22?Math.floor(Math.random()*currentOptions.length):-1;
+  const mysteryRng=seededRng('mystery:'+pos),mysteryIndex=mysteryRng()<.22?Math.floor(mysteryRng()*currentOptions.length):-1;
   const capBudget=capRemaining(), capCosts=currentOptions.map(p=>playerSalary(p)), capMin=Math.min(...capCosts), capAnyFits=capCosts.some(c=>c<=capBudget);
   currentOptions.forEach((p,idx)=>{const fc=document.createElement('div'),rarity=getPlayerRarity(p),cfg=RARITY_CONFIG[rarity],isMystery=idx===mysteryIndex,tier=tierOf(p.r,p),color=TEAM_COLORS[p.t]||'#666',bond=bestBondWithSquad(p,pos),bondHtml=bond?`<div class="chem-preview ${bond.kind}">${bondPreviewText(bond)}</div>`:'',photo=photoUrl(p.n,'1040x760'),cardArt=cardArtUrl(p.n),cost=playerSalary(p),overCap=capAnyFits?cost>capBudget:cost>capMin,photoHtml=`<div class="card-photo-wrap ${cardArt?'has-card-art':''}" style="background-color:${color}22"><div class="card-photo-fallback">${initialsOf(p.n)}</div>${cardArt?`<img class="exact-card-art" src="${cardArt}" alt="${p.n} card art">`:(photo?`<img data-player-name="${p.n}" data-photo-size="260x190" src="${photo}" alt="" onerror="this.remove()">`:'')}</div>`;
     fc.className=`flipcard rarity-${rarity.toLowerCase()}${isMystery?' mystery-slot':''}${isLegendaryDrop(p)?' legendary-drop':''}${overCap?' over-cap':''}`;
@@ -3310,12 +3666,8 @@ function openBenchChoice(){
   let available = allPlayersFlat().filter(p=>!usedNames.has(p.n) && p.r<=BENCH_MAX_RATING);
   if(forced) available = available.filter(p=>uncovered.includes(p.pos));
 
-  const copy = [...available];
-  currentBenchCandidates = [];
-  for(let i=0;i<5 && copy.length;i++){
-    const idx = Math.floor((dailyChallengeMode && dailyRng ? dailyRng() : Math.random())*copy.length);
-    currentBenchCandidates.push(copy.splice(idx,1)[0]);
-  }
+  const eligible = new Set(available.map(p=>p.n));
+  currentBenchCandidates = seededShuffle(allPlayersFlat().filter(p=>p.r<=BENCH_MAX_RATING), 'bench:'+benchIdx).filter(p=>eligible.has(p.n)).slice(0,5);
   markPlayersSeen(currentBenchCandidates);
   const capBudget=capRemaining(), capCosts=currentBenchCandidates.map(p=>playerSalary(p)), capMin=Math.min(...capCosts), capAnyFits=capCosts.some(c=>c<=capBudget);
   const stage = document.getElementById('packStage');
@@ -3585,6 +3937,7 @@ let tradeDeadlineEvent = null;
 
 
 function showSeasonSimulation(){
+  takeDuelSnapshot();
   showScreen('screen-simulate');
   const simCopy = document.getElementById('simulateCopy');
   if(simCopy) simCopy.textContent = `${franchiseLabel()} · 82 games. One season. Let’s see how your roster holds up in the league — and who takes home the major awards.`;
@@ -6409,6 +6762,7 @@ function showResults(keepSwapSelection){
   renderRoster('finalRoster', true);
   renderBenchList(bench, 'finalBenchRoster', null, null, true);
   renderPayrollPanel();
+  renderDuelSlots();
   const bestRun=bestPullOfRun(),bestRunBox=document.getElementById('bestPullRun');
   if(bestRunBox)bestRunBox.innerHTML=bestRun&&bestRun.r>=85?`<div class="court-title">BEST PULL OF THE RUN</div><div class="link-item"><span><b>${bestRun.n}</b></span><span>${bestRun.r} OVR · ${getPlayerRarity(bestRun)}</span></div>`:'';
   renderChain('chainFinal','chainFinalHeader');
