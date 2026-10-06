@@ -1390,7 +1390,6 @@ html:has(#screen-draft:not(.hidden))::after{opacity:.07;}
     </div>
     <div class="actions-row">
       <button class="btn ghost" id="saveBtnResults" onclick="saveCurrentSquad('saveBtnResults')">💾 Save Dynasty</button>
-      <button class="btn ghost" onclick="openTradeMachine()">🔄 Trade Machine</button>
     </div>
     <div class="actions-row">
       <button class="btn" onclick="startDraft()">Новый драфт</button>
@@ -1401,7 +1400,7 @@ html:has(#screen-draft:not(.hidden))::after{opacity:.07;}
   <!-- TRADE MACHINE SCREEN -->
   <div id="screen-trade" class="panel hidden">
     <div class="results-hero">
-      <div class="grade-sub">Trade Finder</div>
+      <div class="grade-sub" id="tradeScreenSub">Trade Finder</div>
     </div>
 
     <div class="trade-search">
@@ -1442,7 +1441,7 @@ html:has(#screen-draft:not(.hidden))::after{opacity:.07;}
     <div id="tradeResponse"></div>
 
     <div class="actions-row">
-      <button class="btn ghost" onclick="showScreen('screen-results')">Назад к составу</button>
+      <button class="btn" id="tradeExitBtn" onclick="exitTradeMachine()">Назад к составу</button>
     </div>
   </div>
 
@@ -2609,7 +2608,7 @@ function startCaptainDraft(keepDaily=false){
 function startDraft(keepDaily=false){
   if(!keepDaily) { dailyChallengeMode=false; dailySeed=''; dailyRng=null; }
   currentRunNumber=nextRunNumber(); rarePullsLoaded=false;
-  squad = {}; currentIdx = 0; usedNames = new Set(); lastSeasonGames=[]; lastSeasonWins=0; lastSeasonLosses=0; seasonAwards=null; seasonSimulationStarted=false;
+  squad = {}; currentIdx = 0; usedNames = new Set(); lastSeasonGames=[]; lastSeasonWins=0; lastSeasonLosses=0; seasonAwards=null; seasonSimulationStarted=false; tradeDeadlineActive=false; tradeDeadlineEvent=null;
   frontOfficeHistory = []; frontOfficeUsedThisSeason = 0; frontOfficeChemistryModifier = 0;
   bench = []; benchIdx = 0; selectedSwap = null;
   coach = null; coachOptions = []; coachDraftComplete = false;
@@ -3208,6 +3207,10 @@ const FRONT_OFFICE_CONFIG = {
   firstGame: 14,
   lastGame: 62
 };
+// Дедлайн трейдов — середина регулярки: после этой игры Trade Machine открывается один раз за сезон.
+const TRADE_DEADLINE_GAME = 41;
+let tradeDeadlineActive = false;
+let tradeDeadlineEvent = null;
 
 
 function showSeasonSimulation(){
@@ -3443,7 +3446,7 @@ function continueWithSameTeam(){
   showOffseasonRecap(retired, avgBefore, avgAfter, ()=>{
     currentRunNumber = nextRunNumber(); rarePullsLoaded=false;
     dailyChallengeMode=false; dailySeed=''; dailyRng=null;
-    lastSeasonGames=[]; lastSeasonWins=0; lastSeasonLosses=0; seasonAwards=null; seasonSimulationStarted=false;
+    lastSeasonGames=[]; lastSeasonWins=0; lastSeasonLosses=0; seasonAwards=null; seasonSimulationStarted=false; tradeDeadlineActive=false; tradeDeadlineEvent=null;
     frontOfficeHistory = []; frontOfficeUsedThisSeason = 0; frontOfficeChemistryModifier = 0;
     selectedSwap = null;
     playoffState = null;
@@ -3582,6 +3585,8 @@ function tradeRosterCheck(giveCount, getCount){
 function openTradeMachine(){
   tradeTargetAbbr=null; tradeGiveKeys=[]; tradeGetNames=[]; tradeFinderKeys=[]; tradeFinderOffers=[];
   showScreen('screen-trade');
+  const exitBtn=document.getElementById('tradeExitBtn'); if(exitBtn) exitBtn.textContent = tradeDeadlineActive ? 'ЗАКРЫТЬ ДЕДЛАЙН · ПРОДОЛЖИТЬ СЕЗОН' : 'Назад к составу';
+  const sub=document.getElementById('tradeScreenSub'); if(sub) sub.textContent = tradeDeadlineActive ? `Trade Deadline · после игры ${TRADE_DEADLINE_GAME}` : 'Trade Finder';
   const input=document.getElementById('tradeSearchInput'); if(input) input.value='';
   const hits=document.getElementById('tradeSearchResults'); if(hits) hits.innerHTML='';
   closeManualTrade();
@@ -4116,7 +4121,9 @@ function buildFrontOfficeEvents(){
     if(!candidates.length) continue;
     let totalW=candidates.reduce((s,x)=>s+x[1],0), pick=Math.random()*totalW, type=candidates[candidates.length-1][0];
     for(const [t,w] of candidates){pick-=w;if(pick<=0){type=t;break;}}
-    const start=seasonRandomInt(FRONT_OFFICE_CONFIG.firstGame,FRONT_OFFICE_CONFIG.lastGame);
+    const start=type==='trade'
+      ? seasonRandomInt(FRONT_OFFICE_CONFIG.firstGame,Math.min(FRONT_OFFICE_CONFIG.lastGame,TRADE_DEADLINE_GAME-1))
+      : seasonRandomInt(FRONT_OFFICE_CONFIG.firstGame,FRONT_OFFICE_CONFIG.lastGame);
     if(type==='trade' && trade) events.push({type:'frontoffice_trade',start,player:trade.player,offer:trade.offer,needs});
     else if(type==='development' && young) events.push({type:'frontoffice_development',start,player:young});
     else if(type==='decision' && decision) events.push({type:'frontoffice_decision',start,...decision});
@@ -4142,6 +4149,7 @@ function buildSeasonEventQueue(){
   });
   const foEvents=buildFrontOfficeEvents();
   events.push(...foEvents);
+  events.push({type:'deadline',start:TRADE_DEADLINE_GAME+0.5});
   lastSeasonWins=lastSeasonGames.filter(g=>g.win).length;lastSeasonLosses=SEASON_GAMES-lastSeasonWins;
   const winsEl=document.getElementById('seasonWins'),lossesEl=document.getElementById('seasonLosses');
   if(winsEl)winsEl.textContent=lastSeasonWins;if(lossesEl)lossesEl.textContent=lastSeasonLosses;
@@ -4217,6 +4225,14 @@ function showSeasonEvent(ev){
       title='🔥 BREAKOUT';copy=`${p.n} проводит сильный отрезок сезона. Ты можешь начать строить вокруг него ротацию или оставить всё как есть.`;a='BUILD AROUND HIM';b='STAY THE COURSE';metaA='+1 OVR · +1 team power';metaB='+1 chemistry';
     }
     html=`<div class="front-office-kicker">FRONT OFFICE · GAME ${ev.start}</div><div class="front-office-title">${title}</div><div class="season-event-copy">${copy}</div>${seasonEventPlayerCard(p,`${p.pos} · ${p.r} OVR · ${playerAge(p)} лет · ${playerRole(p)}`)}<div class="fo-decision-grid"><button class="fo-choice" onclick="resolveFrontOfficeDecision('a')"><div class="fo-choice-title">${a}</div><div class="fo-choice-meta">${metaA}</div></button><button class="fo-choice" onclick="resolveFrontOfficeDecision('b')"><div class="fo-choice-title">${b}</div><div class="fo-choice-meta">${metaB}</div></button></div>`;
+  }else if(ev.type==='deadline'){
+    const rec=seasonRecordThrough(TRADE_DEADLINE_GAME), needs=currentTeamNeeds();
+    html=`<div class="front-office-kicker">TRADE DEADLINE · AFTER GAME ${TRADE_DEADLINE_GAME}</div>
+      <div class="front-office-title">🔄 ДЕДЛАЙН ТРЕЙДОВ</div>
+      <div class="season-event-copy">Половина сезона позади — <b>${rec.w}–${rec.l}</b>. Это последнее окно для обменов: после дедлайна состав заморожен до конца сезона и плей-офф. Игры <b>${TRADE_DEADLINE_GAME+1}–${SEASON_GAMES}</b> команда сыграет уже тем составом, который ты соберёшь сейчас.</div>
+      <div class="fo-impact"><div class="fo-impact-box"><div class="v">${rec.w}–${rec.l}</div><div class="l">после ${TRADE_DEADLINE_GAME} игр</div></div><div class="fo-impact-box"><div class="v">${currentTeamStrength().toFixed(1)}</div><div class="l">team power</div></div><div class="fo-impact-box"><div class="v">${computeChemistry().pct}</div><div class="l">chemistry</div></div></div>
+      <div class="fo-need-row">${POSITIONS.map(pos=>`<span class="fo-need ${needs[pos]>=4?'hot':''}">${pos} ${'★'.repeat(needs[pos])}</span>`).join('')}</div>
+      <div class="season-event-actions"><button class="btn ghost" onclick="continueSeasonEvent()">ПРОПУСТИТЬ ДЕДЛАЙН</button><button class="btn" onclick="openDeadlineTradeMachine()">ОТКРЫТЬ TRADE MACHINE</button></div>`;
   }else if(ev.type==='trade'){
     html=`<div class="season-event-kicker">TRADE DEADLINE · GAME ${ev.gameNumber}</div>
       <div class="season-event-title">ДЕДЛАЙН ТРЕЙДОВ</div>
@@ -4228,6 +4244,48 @@ function showSeasonEvent(ev){
   modal.innerHTML=html;
 }
 
+function seasonRecordThrough(gameNumber){
+  const w=lastSeasonGames.slice(0,gameNumber).filter(g=>g.win).length;
+  return {w, l:Math.min(gameNumber,lastSeasonGames.length)-w};
+}
+function rosterNameList(){ return [...rosterPlayers(), ...bench].map(p=>p.n); }
+function openDeadlineTradeMachine(){
+  const ev=seasonEventQueue[seasonEventIndex]; if(!ev||ev.type!=='deadline') return;
+  tradeDeadlineEvent=ev; tradeDeadlineActive=true;
+  ev.beforePower=currentTeamStrength(); ev.beforeChem=computeChemistry().pct; ev.rosterBefore=rosterNameList();
+  closeSeasonEvent();
+  openTradeMachine();
+  window.scrollTo({top:0});
+}
+function exitTradeMachine(){
+  if(!tradeDeadlineActive) return showScreen('screen-results');
+  const ev=tradeDeadlineEvent;
+  tradeDeadlineActive=false; tradeDeadlineEvent=null;
+  showScreen('screen-simulate');
+  window.scrollTo({top:0});
+  const now=rosterNameList();
+  const out=ev.rosterBefore.filter(n=>!now.includes(n)), inn=now.filter(n=>!ev.rosterBefore.includes(n));
+  seasonEventIndex++;
+  if(!out.length && !inn.length) return showNextSeasonEvent();
+  // Травмы и события ушедших игроков больше не касаются команды; оставшиеся игры пересчитываются с новым составом.
+  const gone=new Set(out);
+  window.__seasonInjuries=(window.__seasonInjuries||[]).filter(x=>!gone.has(x.player.n) || x.end<=TRADE_DEADLINE_GAME);
+  seasonEventQueue=seasonEventQueue.filter((e,i)=>i<seasonEventIndex || !e.player || !gone.has(e.player.n));
+  lastPowerScore=rosterPowerFromVisibleState(0);
+  updateSeasonAfterFrontOffice(TRADE_DEADLINE_GAME);
+  const afterPower=currentTeamStrength(), afterChem=computeChemistry().pct;
+  frontOfficeHistory.push({type:'trade',incomingPlayerId:inn.join(', '),outgoingPlayerId:out.join(', '),round:TRADE_DEADLINE_GAME,accepted:true,text:`🔄 Trade deadline: out ${out.join(', ')} · in ${inn.join(', ')} · power ${ev.beforePower.toFixed(1)} → ${afterPower.toFixed(1)}`});
+  const backdrop=document.getElementById('seasonEventBackdrop'), modal=document.getElementById('seasonEventModal');
+  if(!backdrop||!modal) return showNextSeasonEvent();
+  backdrop.classList.add('show'); backdrop.setAttribute('aria-hidden','false');
+  const rec=seasonRecordThrough(TRADE_DEADLINE_GAME);
+  modal.innerHTML=`<div class="front-office-kicker">TRADE DEADLINE · PASSED</div>
+    <div class="front-office-title">ДЕДЛАЙН ЗАКРЫТ</div>
+    <div class="season-event-copy">Ушли: <b>${out.join(', ')}</b><br>Пришли: <b>${inn.join(', ')}</b></div>
+    <div class="fo-impact"><div class="fo-impact-box"><div class="v">${ev.beforePower.toFixed(1)} → ${afterPower.toFixed(1)}</div><div class="l">team power</div></div><div class="fo-impact-box"><div class="v">${ev.beforeChem} → ${afterChem}</div><div class="l">chemistry</div></div><div class="fo-impact-box"><div class="v">${rec.w}–${rec.l}</div><div class="l">до дедлайна</div></div></div>
+    <div class="season-event-note">Игры 1–${TRADE_DEADLINE_GAME} уже сыграны старым составом. Игры ${TRADE_DEADLINE_GAME+1}–${SEASON_GAMES} и плей-офф — новым.</div>
+    <div class="season-event-actions"><button class="btn" onclick="showNextSeasonEvent()">ПРОДОЛЖИТЬ СЕЗОН</button></div>`;
+}
 function showNextSeasonEvent(){
   if(!seasonEventsActive) return finishSeasonAfterEvents();
   if(seasonEventIndex>=seasonEventQueue.length) return finishSeasonAfterEvents();
