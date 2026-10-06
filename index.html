@@ -1246,6 +1246,7 @@ html:has(#screen-draft:not(.hidden))::after{opacity:.07;}
 .coach-hero-record{font-family:'Anton',sans-serif;font-size:44px;line-height:1;letter-spacing:1px;color:#fff;margin:8px 0 8px;text-shadow:0 2px 12px rgba(0,0,0,.5);}
 .coach-hero-finish{font:700 11px/1.25 'IBM Plex Mono',monospace;letter-spacing:.5px;color:#fff;background:rgba(0,0,0,.4);padding:4px 8px;border-radius:6px;}
 .pcard .coach-text-hero::before{display:none;}
+.coach-board{position:absolute;inset:0;width:100%;height:100%;z-index:2;}
 .coach-card .pcard .card-pos{display:none;}
 .pcard .coach-photo-wrap::before{content:"";position:absolute;left:0;right:0;top:0;height:84px;background:linear-gradient(180deg,rgba(13,16,24,.62),transparent);z-index:3;pointer-events:none;}
 .coach-card .pcard .card-name{font-size:17px;}
@@ -1829,7 +1830,7 @@ function coachQuoteHtmlFor(abbr){
   const quote = pool[Math.floor(Math.random()*pool.length)];
   return `<div class="opp-coach-quote">
       <div class="opp-coach-avatar">${coachPhotoMarkup(coach.n, TEAM_COLORS[abbr]||'#666')}</div>
-      <div class="opp-coach-text"><b>${coach.n}</b> <span class="opp-coach-record">(${coach.w}-${coach.l} · ${coach.finish})</span>: “${quote}”</div>
+      <div class="opp-coach-text"><b>${coach.n}</b> <span class="opp-coach-record">(${coach.finish})</span>: “${quote}”</div>
     </div>`;
 }
 
@@ -2659,6 +2660,33 @@ loadRemotePlayerPhotos();
    photo credits live in front_office_28/29.html if they are ever brought back. */
 const COACH_PHOTOS = {};
 const COACH_FALLBACK_PHOTOS = {};
+/* A coach card has no portrait: its hero is a tactics board. Each coach always gets the same
+   one of a few plays (picked by name), drawn over a half court in the franchise colour. */
+const COACH_PLAYS = [
+  { o:[[90,150],[112,126],[26,66],[154,66],[62,52]], cuts:[[90,150,128,138,126,98],[112,126,116,96,96,62]], passes:[[126,98,154,70]] },
+  { o:[[90,152],[34,112],[146,112],[58,56],[122,56]], cuts:[[34,112,40,70,70,40],[122,56,150,78,150,104]], passes:[[90,152,146,116],[146,112,74,42]] },
+  { o:[[60,148],[120,148],[24,70],[156,70],[90,84]], cuts:[[24,70,50,96,84,100],[60,148,70,116,96,104]], passes:[[120,148,94,90],[90,84,156,74]] },
+  { o:[[90,150],[40,128],[140,128],[70,74],[110,74]], cuts:[[40,128,26,96,30,64],[110,74,100,52,92,40],[70,74,60,104,84,124]], passes:[[90,150,34,66]] },
+  { o:[[90,150],[66,98],[114,98],[24,62],[156,62]], cuts:[[90,150,58,134,54,108],[114,98,122,70,98,48]], passes:[[54,108,28,68]] },
+  { o:[[90,148],[30,120],[150,120],[42,50],[138,50]], cuts:[[42,50,68,34,94,44],[150,120,162,92,146,62]], passes:[[90,148,146,124],[90,148,94,52]] }
+];
+function coachBoardSvg(name){
+  let h = 2166136261; for(let i=0;i<name.length;i++){ h ^= name.charCodeAt(i); h = Math.imul(h, 16777619); }
+  const play = COACH_PLAYS[((h >>> 0) >>> 7) % COACH_PLAYS.length];
+  const line = 'fill="none" stroke="rgba(255,255,255,.34)" stroke-width="1.6"';
+  const players = play.o.map((p,i)=>`<circle cx="${p[0]}" cy="${p[1]}" r="8" fill="rgba(10,12,18,.55)" stroke="#fff" stroke-width="1.8"/><text x="${p[0]}" y="${p[1]+3.6}" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="10" font-weight="700" fill="#fff">${i+1}</text>`).join('');
+  const cuts = play.cuts.map(c=>`<path d="M${c[0]} ${c[1]} Q${c[2]} ${c[3]} ${c[4]} ${c[5]}" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" marker-end="url(#coachArrow)"/>`).join('');
+  const passes = play.passes.map(c=>`<path d="M${c[0]} ${c[1]} L${c[2]} ${c[3]}" fill="none" stroke="#fff" stroke-width="1.8" stroke-dasharray="4 4" stroke-linecap="round" marker-end="url(#coachArrow)"/>`).join('');
+  return `<svg class="coach-board" viewBox="0 0 180 196" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <defs><marker id="coachArrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#fff"/></marker></defs>
+    <path d="M22 18 V56 A68 68 0 0 0 158 56 V18" ${line}/>
+    <rect x="62" y="18" width="56" height="68" ${line}/>
+    <path d="M62 86 A28 28 0 0 0 118 86" ${line}/>
+    <path d="M62 86 A28 28 0 0 1 118 86" ${line} stroke-dasharray="3 4"/>
+    <path d="M76 24 H104" ${line}/><circle cx="90" cy="31" r="5" ${line}/>
+    ${cuts}${passes}${players}
+  </svg>`;
+}
 function coachPhotoUrl(name){ return COACH_PHOTOS[name] || null; }
 function coachPhotoProxyUrl(name){
   const u=coachPhotoUrl(name);
@@ -3356,7 +3384,7 @@ function revealCoachPack(){
   coachOptions.forEach((p,idx)=>{
     const fc=document.createElement('div'); fc.className='flipcard coach-card'; const tier=tierOf(p.r,p); const color=TEAM_COLORS[p.t]||'#666';
     const coachPhotoHtml=coachPhotoMarkup(p.n,color);
-    fc.innerHTML=`<div class="flipcard-inner"><div class="face front"><div class="q">HC</div></div><div class="face back pcard tier-${tier}" style="--tc:${color}"><div class="rarity-badge">HEAD COACH</div><div class="card-photo-wrap coach-photo-wrap coach-text-hero" style="background-color:${color}22"><div class="coach-hero"><div class="coach-hero-kicker">2025-26 RECORD</div><div class="coach-hero-record">${p.w}–${p.l}</div><div class="coach-hero-finish">${p.finish}</div></div></div><div class="card-top" style="background:${color}"></div><div class="card-rating">${p.r}</div><div class="card-pos">HC</div><div class="card-body"><div class="card-name">${p.n}</div><div class="card-meta"><span class="card-team">${TEAM_NAMES[p.t]||p.t}</span></div><div class="card-college">Head coach · rating ${p.r}</div></div></div></div>`;
+    fc.innerHTML=`<div class="flipcard-inner"><div class="face front"><div class="q">HC</div></div><div class="face back pcard tier-${tier}" style="--tc:${color}"><div class="rarity-badge">HEAD COACH</div><div class="card-photo-wrap coach-photo-wrap coach-text-hero" style="background-color:${color}22">${coachBoardSvg(p.n)}</div><div class="card-top" style="background:${color}"></div><div class="card-rating">${p.r}</div><div class="card-pos">HC</div><div class="card-body"><div class="card-name">${p.n}</div><div class="card-meta"><span class="card-team">${TEAM_NAMES[p.t]||p.t}</span></div><div class="card-college">Head coach</div></div></div></div>`;
     row.appendChild(fc); attachTilt(fc.querySelector('.face.back'));
     setTimeout(()=>fc.classList.add('flipped'),220+idx*180);
     fc.addEventListener('click',()=>{if(fc.classList.contains('flipped')) chooseCoach(p);});
@@ -3367,7 +3395,7 @@ function chooseCoach(p){
   const panel=document.getElementById('coachPanel'); if(panel) panel.classList.add('hidden');
   const selected=document.getElementById('coachSelected'); if(selected) selected.classList.remove('hidden');
   const name=document.getElementById('coachSelectedName'),meta=document.getElementById('coachSelectedMeta');
-  if(name) name.textContent=p.n; if(meta) meta.textContent=`${TEAM_NAMES[p.t]||p.t} · ${p.r} OVR · ${p.w}-${p.l} · ${p.finish}`;
+  if(name) name.textContent=p.n; if(meta) meta.textContent=`${TEAM_NAMES[p.t]||p.t} · ${p.r} OVR · HEAD COACH`;
   const avatar=document.getElementById('coachSelectedAvatar');
   const coachPhoto=coachPhotoUrl(p.n), coachProxy=coachPhotoProxyUrl(p.n);
   if(avatar) avatar.innerHTML=coachPhoto?`<img src="${coachPhoto}" data-proxy="${coachProxy||''}" alt="${p.n}" referrerpolicy="no-referrer" loading="eager" onerror="if(this.dataset.proxy && this.src!==this.dataset.proxy){this.src=this.dataset.proxy;}else{this.parentElement.innerHTML='<span class=chain-fallback>${initialsOf(p.n)}</span>'}">`:`<span class="chain-fallback">${initialsOf(p.n)}</span>`;
