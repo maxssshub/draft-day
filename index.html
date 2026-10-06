@@ -397,7 +397,23 @@ html.tg-app .chem-flavor-toast{top:calc(88px + var(--tg-top));}
   .season-record .dash{font-size:26px;color:var(--text-dim);}
   .season-sub{margin-top:10px;font-size:12px;color:var(--text-dim);letter-spacing:.5px;}
   .season-sub b{color:var(--wood);font-weight:700;}
-  .season-games{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:14px;}
+  .season-games{margin-top:14px;}
+  .season-chips{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:12px;}
+  .sg-strip{display:grid;grid-template-columns:repeat(41,1fr);gap:3px;touch-action:pan-y;}
+  @media(max-width:700px){.sg-strip{grid-template-columns:repeat(21,1fr);gap:4px;}}
+  .sg-cell{display:block;position:relative;aspect-ratio:1;min-width:0;padding:0;border:0;border-radius:3px;background:rgba(255,255,255,.1);cursor:pointer;}
+  .sg-cell.w{background:var(--teal);}
+  .sg-cell.top{box-shadow:inset 0 0 0 2px var(--gold);}
+  .sg-cell.inj::after{content:"";position:absolute;left:50%;top:50%;width:4px;height:4px;margin:-2px 0 0 -2px;border-radius:50%;background:var(--err);}
+  .sg-cell.sel{outline:2px solid #fff;outline-offset:1px;z-index:1;}
+  .sg-cell:focus-visible{outline:2px solid var(--wood);outline-offset:1px;}
+  .sg-detail{margin-top:12px;min-height:34px;font-size:13px;line-height:1.35;color:var(--text-dim);text-align:center;}
+  .sg-detail b{color:var(--text);} .sg-detail .w{color:var(--teal);font-weight:700;} .sg-detail .l{color:var(--text);font-weight:700;}
+  .sg-legend{display:flex;flex-wrap:wrap;gap:6px 14px;justify-content:center;align-items:center;margin-top:8px;font-size:11px;color:var(--text-dim);}
+  .sg-legend span{display:inline-flex;align-items:center;gap:5px;}
+  .sg-legend i.sg-cell{display:inline-block;width:11px;height:11px;aspect-ratio:auto;cursor:default;}
+  .sg-toggle{border:1px solid var(--line);background:transparent;color:var(--text);border-radius:8px;padding:5px 10px;font:600 11px/1 inherit;cursor:pointer;}
+  .sg-toggle:hover,.sg-toggle:focus-visible{border-color:var(--wood);outline:none;}
   .season-game-chip{font-family:'IBM Plex Mono',monospace;font-size:10px;padding:4px 8px;border-radius:7px;background:var(--panel);border:1px solid var(--line);display:inline-flex;gap:6px;align-items:center;color:var(--text-dim);cursor:default;}
   .season-game-chip .sgc-team{font-weight:700;letter-spacing:.5px;}
   .season-game-chip.g-win{color:var(--teal);border-color:rgba(36,200,176,.35);}
@@ -711,8 +727,9 @@ header:after{content:"NBA DRAFT NIGHT";position:absolute;right:0;bottom:4px;font
     border-radius:13px;background:var(--panel2);cursor:pointer;text-align:center;
     transition:.18s ease;overflow:hidden;
   }
-  .team-choice:hover{transform:translateY(-2px);border-color:var(--wood-dim);box-shadow:var(--shadow-2);}
-  .team-choice.selected{border-color:var(--wood);box-shadow:0 0 0 1px var(--wood), var(--shadow-2);}
+  .team-choice{background:linear-gradient(165deg, color-mix(in srgb, var(--tc,#555) 30%, var(--panel2)) 0%, var(--panel2) 58%);box-shadow:inset 0 3px 0 var(--tc,#555);}
+  .team-choice:hover{transform:translateY(-2px);border-color:var(--tc,var(--wood-dim));box-shadow:inset 0 3px 0 var(--tc,#555), var(--shadow-2);}
+  .team-choice.selected{border-color:var(--tc,var(--wood));background:linear-gradient(165deg, color-mix(in srgb, var(--tc,#555) 52%, var(--panel2)) 0%, var(--panel2) 78%);box-shadow:inset 0 3px 0 var(--tc,#555), 0 0 0 2px var(--tc,var(--wood)), var(--shadow-2);}
   .team-choice.selected:after{content:"✓";position:absolute;right:9px;top:8px;color:var(--gold);font:900 14px/1 Arial;}
   #confirmTeamBtn.is-disabled{opacity:.48;cursor:not-allowed;}
   .team-logo{height:53px;width:62px;object-fit:contain;margin:0 auto 8px;display:block;}
@@ -2834,6 +2851,21 @@ function filterTeams(conf){
   renderTeamChoices();
 }
 
+// Logo could not be loaded: show the team abbreviation on a badge in the franchise colour.
+function readableOn(hex){
+  const m = /^#?([0-9a-f]{6})$/i.exec(hex||''); if(!m) return '#fff';
+  const n = parseInt(m[1],16), r=(n>>16)&255, g=(n>>8)&255, b=n&255;
+  return (0.299*r + 0.587*g + 0.114*b) > 150 ? '#111' : '#fff';
+}
+function teamLogoFailed(img, abbr){
+  img.onerror = null; img.style.display = 'none';
+  const color = TEAM_COLORS[abbr] || '#555';
+  const badge = document.createElement('span');
+  badge.className = 'team-logo-fallback';
+  badge.textContent = abbr || 'NBA';
+  badge.style.background = color; badge.style.color = readableOn(color); badge.style.borderColor = 'transparent';
+  img.insertAdjacentElement('afterend', badge);
+}
 function renderTeamChoices(){
   const grid = document.getElementById('teamsGrid');
   if(!grid) return;
@@ -2843,8 +2875,8 @@ function renderTeamChoices(){
 
   grid.innerHTML = list.map(t=>`
     <button class="team-choice ${selectedTeam && selectedTeam.id===t.id?'selected':''}"
-      type="button" data-team-id="${t.id}" onclick="selectTeam('${t.id}')">
-      <img class="team-logo" src="${NBA_LOGO_URL(t.id)}" alt="${t.name}" onerror="this.onerror=null;this.style.display='none';this.insertAdjacentHTML('afterend','<span class=team-logo-fallback>${initialsOf(t.name)}</span>');">
+      type="button" data-team-id="${t.id}" onclick="selectTeam('${t.id}')" style="--tc:${TEAM_COLORS[NAME_TO_ABBR[t.name]]||'#555'}">
+      <img class="team-logo" src="${NBA_LOGO_URL(t.id)}" alt="${t.name}" onerror="teamLogoFailed(this,'${NAME_TO_ABBR[t.name]||''}')">
       <div class="team-name">${t.name}</div>
       <div class="team-conf">${t.conf==='east'?'EASTERN CONFERENCE':'WESTERN CONFERENCE'}</div>
     </button>
@@ -2857,7 +2889,7 @@ function selectTeam(id){
   const logo = document.getElementById('selectedTeamLogo');
   const btn = document.getElementById('confirmTeamBtn');
   if(name) name.textContent = selectedTeam ? selectedTeam.name : 'Choose a team';
-  if(logo) logo.innerHTML = selectedTeam ? `<img src="${NBA_LOGO_URL(selectedTeam.id)}" alt="${selectedTeam.name}" onerror="this.onerror=null;this.style.display='none';this.insertAdjacentHTML('afterend','<span class=team-logo-fallback>'+initialsOf(selectedTeam.name)+'</span>');">` : '';
+  if(logo) logo.innerHTML = selectedTeam ? `<img src="${NBA_LOGO_URL(selectedTeam.id)}" alt="${selectedTeam.name}" onerror="teamLogoFailed(this,'${NAME_TO_ABBR[selectedTeam.name]||''}')">` : '';
   if(btn){ btn.disabled = false; btn.setAttribute('aria-disabled', selectedTeam ? 'false' : 'true'); btn.classList.toggle('is-disabled', !selectedTeam); }
   if(selectedTeam){
     const abbr=NAME_TO_ABBR[selectedTeam.name]; const c=abbr&&TEAM_COLORS[abbr];
@@ -2884,7 +2916,7 @@ function renderFranchiseUI(){
   const label = document.getElementById('draftFranchiseLabel');
   if(label) label.textContent = franchiseLabel();
   const logo = document.getElementById('draftFranchiseLogo');
-  if(logo) logo.innerHTML = selectedTeam ? `<img src="${NBA_LOGO_URL(selectedTeam.id)}" alt="${selectedTeam.name}" onerror="this.onerror=null;this.style.display='none';this.insertAdjacentHTML('afterend','<span class=team-logo-fallback>'+initialsOf(selectedTeam.name)+'</span>');">` : '';
+  if(logo) logo.innerHTML = selectedTeam ? `<img src="${NBA_LOGO_URL(selectedTeam.id)}" alt="${selectedTeam.name}" onerror="teamLogoFailed(this,'${NAME_TO_ABBR[selectedTeam.name]||''}')">` : '';
 }
 
 /* ---------------- INITIAL SCREEN ---------------- */
@@ -4561,7 +4593,7 @@ function showSeasonEvent(ev){
     const chronicle=lines.map(l=>`<div class="season-event-line"><span class="season-event-minute">${l.min}'</span><span>${l.text}</span></div>`).join('');
     html=`<div class="season-event-kicker">STATEMENT GAME · REGULAR SEASON</div>
       <div class="season-event-title">${g.win?'YOU MADE A STATEMENT':'THEY MADE A STATEMENT'}</div>
-      <div class="season-event-copy">One of your games against a top opponent doesn’t just dissolve into the 82 chips. Here’s how it actually played out.</div>
+      <div class="season-event-copy">One of your games against a top opponent doesn’t just blur into the 82-game strip. Here’s how it actually played out.</div>
       <div class="season-event-hero"><div><div class="season-event-name">${franchiseLabel()} ${g.win?'— WIN':'— LOSS'}</div><div class="season-event-meta">vs ${g.name} · ${g.oppPower} OVR</div></div><div style="margin-left:auto;font:800 24px/1 'IBM Plex Mono',monospace;">${g.myScore}–${g.oppScore}</div></div>
       <div class="season-event-chronicle"><div class="ce-title">PLAY-BY-PLAY</div>${chronicle}</div>
       <div class="season-event-actions"><button class="btn" onclick="continueSeasonEvent()">NEXT</button></div>`;
@@ -5054,18 +5086,54 @@ function renderSeason(powerScore, grade){
   renderSeasonSchedule();
 }
 
+// Season at a glance: 82 small squares instead of 82 score chips. Tap or drag across the strip
+// to read a game; the full list of scores is still there behind "All scores".
+function seasonGameIsTop(g){ return g.oppPower >= 87; }
+function seasonGameShortHanded(g){ return !!(g.injuries && g.injuries.length); }
+function seasonSummaryLine(){
+  let best=0, run=0;
+  lastSeasonGames.forEach(g=>{ run = g.win ? run+1 : 0; best = Math.max(best, run); });
+  const top = lastSeasonGames.filter(seasonGameIsTop), topWins = top.filter(g=>g.win).length;
+  return `Longest win streak <b>${best}</b>${top.length?` · vs top opponents <b>${topWins}–${top.length-topWins}</b>`:''} · tap a game for the score`;
+}
+function showSeasonGame(i){
+  const g = lastSeasonGames[i], box = document.getElementById('seasonGameDetail');
+  if(!g || !box) return;
+  document.querySelectorAll('#seasonStrip .sg-cell').forEach((c,k)=>c.classList.toggle('sel', k===i));
+  box.innerHTML = `<b>Game ${g.gameNumber}</b> · <span class="${g.win?'w':'l'}">${g.win?'W':'L'} ${g.myScore}–${g.oppScore}</span> vs ${g.name}${g.oppPower?` · ${g.oppPower} OVR`:''}${seasonGameIsTop(g)?' · ★ top opponent':''}${seasonGameShortHanded(g)?' · 🩹 short-handed':''}`;
+}
+function toggleSeasonScores(){
+  const chips = document.getElementById('seasonChips'), btn = document.getElementById('seasonScoresBtn');
+  if(!chips) return;
+  const hidden = chips.classList.toggle('hidden');
+  if(btn){ btn.textContent = hidden ? 'All scores' : 'Hide scores'; btn.setAttribute('aria-expanded', String(!hidden)); }
+}
 function renderSeasonSchedule(){
   const el = document.getElementById('seasonSchedule');
   if(!el) return;
-  el.innerHTML = lastSeasonGames.map(g=>{
+  if(!lastSeasonGames.length){ el.innerHTML = ''; return; }
+  const cells = lastSeasonGames.map((g,i)=>`<button type="button" class="sg-cell ${g.win?'w':'l'}${seasonGameIsTop(g)?' top':''}${seasonGameShortHanded(g)?' inj':''}" data-i="${i}" aria-label="Game ${g.gameNumber}: ${g.win?'win':'loss'} ${g.myScore}–${g.oppScore} vs ${g.name}"></button>`).join('');
+  const chips = lastSeasonGames.map(g=>{
     const cls = g.win ? 'g-win' : 'g-loss';
     const color = TEAM_COLORS[g.abbr] || '#666';
-    const injuryMark = g.injuries && g.injuries.length ? ' · 🩹' : '';
-    const topMark = g.oppPower >= 87 ? ' · ★' : '';
+    const injuryMark = seasonGameShortHanded(g) ? ' · 🩹' : '';
+    const topMark = seasonGameIsTop(g) ? ' · ★' : '';
     return `<span class="season-game-chip ${cls}" style="border-color:${color}66" title="Game ${g.gameNumber}: ${g.name}: ${g.myScore}–${g.oppScore}${injuryMark}${topMark}">
         <span class="sgc-team">${g.abbr}</span><span class="sgc-score">${g.myScore}–${g.oppScore}</span>${injuryMark||topMark?`<span>${injuryMark}${topMark}</span>`:''}
       </span>`;
   }).join('');
+  el.innerHTML = `<div class="sg-strip" id="seasonStrip">${cells}</div>
+    <div class="sg-detail" id="seasonGameDetail">${seasonSummaryLine()}</div>
+    <div class="sg-legend">
+      <span><i class="sg-cell w"></i>win</span><span><i class="sg-cell l"></i>loss</span>
+      <span><i class="sg-cell w top"></i>top opponent</span><span><i class="sg-cell l inj"></i>short-handed</span>
+      <button type="button" class="sg-toggle" id="seasonScoresBtn" aria-expanded="false" onclick="toggleSeasonScores()">All scores</button>
+    </div>
+    <div class="season-chips hidden" id="seasonChips">${chips}</div>`;
+  const strip = document.getElementById('seasonStrip');
+  const pick = target => { const c = target && target.closest ? target.closest('.sg-cell') : null; if(c) showSeasonGame(Number(c.dataset.i)); };
+  strip.addEventListener('click', e=>pick(e.target));
+  strip.addEventListener('pointermove', e=>{ if(e.pointerType==='mouse' || e.buttons) pick(document.elementFromPoint(e.clientX, e.clientY)); });
 }
 
 function rerollSeason(){
