@@ -145,6 +145,9 @@ html.tg-app .chem-flavor-toast{top:calc(88px + var(--tg-top));}
   }
   .slot-pill.active{border-color:var(--wood);box-shadow:0 0 0 1px var(--wood), 0 0 18px rgba(217,142,43,.25);}
   .slot-pill.done{border-color:var(--teal);}
+  .slot-pill.pickable{cursor:pointer;}
+  .slot-pill.pickable:not(.active){border-style:dashed;}
+  .slot-pill.pickable:hover,.slot-pill.pickable:focus-visible{border-color:var(--wood);outline:none;}
   .slot-pill .pos{font-family:'Anton',sans-serif;font-size:15px;letter-spacing:1px;color:var(--text-dim);}
   .slot-pill.active .pos{color:var(--wood);}
   .slot-pill.done .pos{color:var(--teal);}
@@ -1295,7 +1298,7 @@ html:has(#screen-draft:not(.hidden))::after{opacity:.07;}
 
     <div class="board-wrap">
       <div class="panel">
-        <p class="center-note" id="stageNote">You need a point guard (PG). Open the pack.</p>
+        <p class="center-note" id="stageNote">Pick your coach and captain first — then draft the positions in any order.</p>
         <div class="pack-stage" id="packStage"></div>
       </div>
 
@@ -2850,7 +2853,7 @@ function startDraft(keepDaily=false){
   if(!keepDaily) { dailyChallengeMode=false; dailySeed=''; dailyRng=null; }
   currentRunNumber=nextRunNumber(); rarePullsLoaded=false;
   capYear = 0; contractBook = {}; taxSeasons = []; lastOffseasonFinance = null;
-  squad = {}; currentIdx = 0; usedNames = new Set(); lastSeasonGames=[]; lastSeasonWins=0; lastSeasonLosses=0; seasonAwards=null; seasonSimulationStarted=false; tradeDeadlineActive=false; tradeDeadlineEvent=null;
+  squad = {}; currentIdx = 0; packRevealed = false; usedNames = new Set(); lastSeasonGames=[]; lastSeasonWins=0; lastSeasonLosses=0; seasonAwards=null; seasonSimulationStarted=false; tradeDeadlineActive=false; tradeDeadlineEvent=null;
   frontOfficeHistory = []; frontOfficeUsedThisSeason = 0; frontOfficeChemistryModifier = 0;
   bench = []; benchIdx = 0; selectedSwap = null;
   coach = null; coachOptions = []; coachDraftComplete = false;
@@ -3027,8 +3030,21 @@ function chooseCaptain(p){
   }
 }
 
+// Default next pick: the first open starting position. The player can switch to any other
+// open position by tapping its pill, as long as the pack is still sealed.
+let packRevealed = false;
 function advanceCurrentIdx(){
-  while(currentIdx < POSITIONS.length && squad[POSITIONS[currentIdx]]) currentIdx++;
+  const i = POSITIONS.findIndex(pos=>!squad[pos]);
+  currentIdx = i<0 ? POSITIONS.length : i;
+}
+function canChooseDraftPosition(){
+  return coachDraftComplete && captainDraftComplete && !packRevealed && currentIdx < POSITIONS.length;
+}
+function selectDraftPosition(i){
+  if(!canChooseDraftPosition() || squad[POSITIONS[i]] || i===currentIdx) return;
+  currentIdx = i;
+  renderSlots();
+  showSealedPack(POSITIONS[i]);
 }
 
 function renderSlots(){
@@ -3036,7 +3052,14 @@ function renderSlots(){
   row.innerHTML = '';
   POSITIONS.forEach((pos,i)=>{
     const div = document.createElement('div');
-    div.className = 'slot-pill' + (i===currentIdx?' active':'') + (squad[pos]?' done':'');
+    const pickable = canChooseDraftPosition() && !squad[pos];
+    div.className = 'slot-pill' + (i===currentIdx?' active':'') + (squad[pos]?' done':'') + (pickable?' pickable':'');
+    if(pickable){
+      div.setAttribute('role','button'); div.tabIndex = 0;
+      div.setAttribute('aria-label', `Draft ${pos} next`);
+      div.onclick = ()=>selectDraftPosition(i);
+      div.onkeydown = e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); selectDraftPosition(i); } };
+    }
     div.innerHTML = `<div class="pos">${pos}</div><div class="who">${squad[pos]?squad[pos].n.split(' ').slice(-1)[0]:'—'}</div>`;
     row.appendChild(div);
   });
@@ -3059,12 +3082,16 @@ function packBoxHTML(ribbon, label, sub){
 }
 
 function openNewPack(){
-  advanceCurrentIdx();
+  if(currentIdx >= POSITIONS.length || squad[POSITIONS[currentIdx]]) advanceCurrentIdx();
   if(currentIdx >= POSITIONS.length){
     startBenchDraft();
     return;
   }
-  const pos = POSITIONS[currentIdx];
+  packRevealed = false;
+  renderSlots();
+  showSealedPack(POSITIONS[currentIdx]);
+}
+function showSealedPack(pos){
   document.getElementById('stageNote').textContent = posNeedNote(pos);
   const stage = document.getElementById('packStage');
   stage.innerHTML = '';
@@ -3072,13 +3099,16 @@ function openNewPack(){
   box.className = 'pack-box';
   box.style.setProperty('--pack-accent', 'var(--gold)');
   box.innerHTML = packBoxHTML(pos, 'PACK', 'tap to open');
-  box.onclick = ()=>revealPack(pos);
+  box.onclick = ()=>{ packRevealed = true; renderSlots(); revealPack(pos); };
   stage.appendChild(box);
 }
 
 function posNeedNote(pos){
   const names = {PG:'a point guard (PG)',SG:'a shooting guard (SG)',SF:'a small forward (SF)',PF:'a power forward (PF)',C:'a center (C)'};
-  return `You need ${names[pos]}. Open the pack — pick one of five.`;
+  const open = POSITIONS.filter(p=>!squad[p]).length;
+  return open>1
+    ? `Drafting ${names[pos]}. Open the pack — or tap another open position above to draft it first.`
+    : `You need ${names[pos]}. Open the pack — pick one of five.`;
 }
 
 function revealPack(pos){
@@ -3091,7 +3121,7 @@ function revealPack(pos){
     fc.innerHTML=`<div class="flipcard-inner"><div class="face front"><div class="q">${isMystery?'???':'?'}</div>${isMystery?'<div class="mystery-label">MYSTERY</div>':''}</div><div class="face back tier-${tier}" data-idx="${idx}">${p.leg?'<div class="legend-flag">LEGEND</div>':''}<div class="rarity-badge">${cfg.label}</div>${photoHtml}<div class="card-top" style="background:${color}"></div><div class="card-body"><div class="card-rating">${isMystery?'—':p.r}</div><div class="card-cost${overCap?' over-budget':''}">${isMystery?'$?M':'$'+cost+'M'}${overCap?' 🚫':''}</div><div class="card-pos">${pos} · ${p.d.toUpperCase()}</div><div class="card-name">${isMystery?'???':p.n}</div><div class="card-team">${p.t}</div>${p.leg?`<div class="card-years">${p.yrs}</div>`:''}<div class="card-college">${p.col?p.col+' · ':''}${p.nat}</div>${bondHtml}</div></div></div>`;
     row.appendChild(fc);attachTilt(fc.querySelector('.face.back'));
     setTimeout(()=>{fc.classList.add('flipped');if(isMystery){fc.classList.add('mystery-reveal');const ratingEl=fc.querySelector('.card-rating'),nameEl=fc.querySelector('.card-name'),from=Math.max(70,p.r-24),steps=12;let step=0;const timer=setInterval(()=>{step++;if(ratingEl)ratingEl.textContent=Math.min(p.r,Math.round(from+(p.r-from)*step/steps));if(step>=steps){clearInterval(timer);if(nameEl)nameEl.textContent=p.n;}},42);}
-      if(rarity==='GOAT'||rarity==='SUPERSTAR'||rarity==='ELITE'){showPullMoment(p);saveRarePull(p,{pick:currentIdx+1,packType:'PACK'});}
+      if(rarity==='GOAT'||rarity==='SUPERSTAR'||rarity==='ELITE'){showPullMoment(p);saveRarePull(p,{pick:POSITIONS.filter(x=>squad[x]).length+1,packType:'PACK'});}
       if(rarity==='GOAT'){const burst=document.createElement('div');burst.className='pull-goat-burst';fc.appendChild(burst);const text=document.createElement('div');text.className='pull-goat-text';text.textContent='👑 GOAT PULL';fc.appendChild(text);vibrate([40,30,50,30,120]);playLegendaryChime();screenShake();setTimeout(()=>{burst.remove();text.remove();},1400);}
       else if(rarity==='SUPERSTAR'){const burst=document.createElement('div');burst.className='pull-goat-burst';fc.appendChild(burst);vibrate([30,40,70]);playLegendaryChime();setTimeout(()=>burst.remove(),1000);}
       else if(isLegendaryDrop(p)){const burst=document.createElement('div');burst.className='legendary-burst';fc.appendChild(burst);const text=document.createElement('div');text.className='legendary-text';text.textContent='ICON PULL!';fc.appendChild(text);vibrate([40,30,40,30,90]);playLegendaryChime();setTimeout(()=>{burst.remove();text.remove();},1300);}
@@ -3131,7 +3161,7 @@ function draftPlayer(pos, player){
   squad[pos] = player;
   usedNames.add(player.n);
   maybeShowChemistryFlavor(player);
-  currentIdx++;
+  packRevealed = false;
   advanceCurrentIdx();
   renderSlots();
   renderRoster();
