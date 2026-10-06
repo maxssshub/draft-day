@@ -1138,6 +1138,18 @@ html:has(#screen-draft:not(.hidden))::after{opacity:.07;}
 .salary-cap-fill{height:100%;background:linear-gradient(90deg,var(--teal),var(--wood));transition:width .3s ease, background .3s ease;width:0%;}
 .salary-cap-fill.warn{background:linear-gradient(90deg,var(--wood),var(--gold));}
 .salary-cap-fill.over{background:var(--err);}
+.salary-cap-track{position:relative;}
+.cap-tick{position:absolute;top:0;bottom:0;width:2px;background:var(--text);opacity:.55;}
+.cap-lines{display:flex;flex-wrap:wrap;gap:4px 10px;margin-top:6px;font:500 9px/1.3 'IBM Plex Mono',monospace;color:var(--text-dim);}
+.cap-status{display:inline-block;margin-left:6px;padding:2px 6px;border-radius:4px;border:1px solid var(--line);font:700 8px/1.2 'IBM Plex Mono',monospace;letter-spacing:1px;color:var(--text-dim);vertical-align:middle;}
+.cap-status:empty{display:none;}
+.cap-status.good{color:var(--teal);border-color:var(--teal);}
+.cap-status.mid{color:var(--text);}
+.cap-status.warn{color:var(--gold);border-color:var(--gold);}
+.cap-status.over{color:var(--err);border-color:var(--err);}
+.payroll-dim{color:var(--text-dim);font-size:11px;}
+.payroll-num{font-family:'IBM Plex Mono',monospace;white-space:nowrap;}
+.payroll-total{border-top:1px solid var(--line);}
 .card-cost{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--teal);margin-top:2px;}
 .card-cost.over-budget{color:var(--err);}
 #capToast{top:150px;}
@@ -1190,7 +1202,7 @@ html:has(#screen-draft:not(.hidden))::after{opacity:.07;}
   <div id="screen-start" class="panel hidden">
     <div class="start-hero">
       <div class="big">NBA DRAFT.<br><span class="accent">BUILD YOUR DYNASTY.</span></div>
-      <p>5 rounds for the starting five + 5 bench picks. Each one is a pack of 3 random players at the position you need, including legends who have already retired. Balance rating against chemistry: playing on the same team right now is the strongest link, a shared past is a bit weaker — former teammates, same college, same country or same division.</p>
+      <p>5 rounds for the starting five + 5 bench picks. Each one is a pack of 3 random players at the position you need, including legends who have already retired. Balance rating against chemistry: playing on the same team right now is the strongest link, a shared past is a bit weaker — former teammates, same college, same country or same division. Money is real too: 2026-27 NBA salaries, a $165.0M salary cap, a luxury tax line and both aprons — the draft is hard-capped at the 2nd apron ($221.7M).</p>
       <button class="btn" onclick="openTeamSelection()">CHOOSE A TEAM</button>
       <div style="margin-top:12px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
         <button class="btn ghost" onclick="openTeamSelection()">🏀 My Dynasty</button>
@@ -1259,9 +1271,10 @@ html:has(#screen-draft:not(.hidden))::after{opacity:.07;}
         <div class="court-title">NBA LINEUP</div>
         <div class="roster-list" id="rosterList"></div>
         <div class="salary-cap-box">
-          <div class="salary-cap-label">Salary Cap</div>
-          <div class="salary-cap-value"><span id="capSpent">$0M</span> / $150M</div>
-          <div class="salary-cap-track"><div class="salary-cap-fill" id="capFill"></div></div>
+          <div class="salary-cap-label">Payroll <span class="cap-status" id="capStatus"></span></div>
+          <div class="salary-cap-value"><span id="capSpent">$0M</span> / <span id="capHard">$221.7M</span> hard cap</div>
+          <div class="salary-cap-track"><div class="salary-cap-fill" id="capFill"></div><span class="cap-tick" id="capTickCap"></span><span class="cap-tick" id="capTickTax"></span><span class="cap-tick" id="capTickApron"></span></div>
+          <div class="cap-lines" id="capLines"></div>
         </div>
         <div class="fifa-chem">
           <div class="fifa-chem-label">Team Chemistry</div>
@@ -1369,6 +1382,8 @@ html:has(#screen-draft:not(.hidden))::after{opacity:.07;}
       <div class="stat-box"><div class="num" id="finalChem">--%</div><div class="lbl">Roster Chemistry</div></div>
       <div class="stat-box"><div class="num" id="finalBenchDepth">--</div><div class="lbl">Bench Depth</div></div>
     </div>
+
+    <div id="payrollPanel" style="margin-top:16px;"></div>
 
     <div class="fifa-chem">
       <div class="fifa-chem-label">Chemistry along the position chain</div>
@@ -1539,7 +1554,7 @@ html:has(#screen-draft:not(.hidden))::after{opacity:.07;}
     <div class="actions-row"><button class="btn ghost" onclick="startDraft()">New Draft</button><button class="btn ghost" onclick="resetToStart()">Main Menu</button></div>
   </div>
 
-  <footer>player ratings and Captain Pack — NBA 2K27; mugshots — official NBA CDN.  Active rosters reflect the 2026 NBA offseason moves; for retired legends, the team shown is the franchise they’re most closely associated with.<span class="creator-credit">DRAFT DAY · © 2026 <b>MAXIM SAMARSKY</b> · concept, design &amp; development</span></footer>
+  <footer>player ratings and Captain Pack — NBA 2K27; salaries — ESPN, cap figures — 2026-27 NBA season; mugshots — official NBA CDN.  Active rosters reflect the 2026 NBA offseason moves; for retired legends, the team shown is the franchise they’re most closely associated with.<span class="creator-credit">DRAFT DAY · © 2026 <b>MAXIM SAMARSKY</b> · concept, design &amp; development</span></footer>
 </div>
 
 <script>
@@ -2187,34 +2202,227 @@ function getPlayerRarity(player){const r=Number(player?.r||0);if(r>=95)return'GO
 function getPullType(player){const r=getPlayerRarity(player);return r==='GOAT'?'GOAT PULL':r==='SUPERSTAR'?'HOT PULL':r==='ELITE'?'ELITE PULL':null;}
 function rarityWeight(player){return RARITY_CONFIG[getPlayerRarity(player)]?.weight||1;}
 
-/* ---------------- ЗАРПЛАТНЫЙ ПОТОЛОК ----------------
-   Цена игрока считается от его рейтинга (не от редкости напрямую), по кусочно-линейной
-   кривой, растущей всё круче — топовые OVR стоят непропорционально дорого. Потолок —
-   жёсткий: команда из 10 (старт+скамейка, капитан включён, тренер не считается). */
-const SALARY_CAP = 150; // условные $M
-function playerSalary(p){
+const REAL_CONTRACTS = {"Jalen Johnson":[30.0,4],"Jayson Tatum":[58.5,4],"Michael Porter Jr.":[40.9,1],"Brandon Miller":[15.1,1],"Josh Giddey":[25.0,3],"Donovan Mitchell":[50.1,2],"Cade Cunningham":[50.1,4],"Tyrese Haliburton":[48.9,3],"Giannis Antetokounmpo":[58.5,2],"Tyler Herro":[33.0,1],"Jalen Brunson":[37.7,3],"Paolo Banchero":[41.5,5],"Tyrese Maxey":[40.8,3],"Kawhi Leonard":[50.3,1],"Anthony Davis":[58.5,2],"Kyrie Irving":[39.4,2],"Nikola Jokić":[59.0,2],"Stephen Curry":[62.6,1],"Kevin Durant":[43.9,2],"Darius Garland":[42.2,2],"Luka Dončić":[49.5,3],"Zach Edey":[6.3,3],"Anthony Edwards":[48.9,4],"Zion Williamson":[42.2,2],"Shai Gilgeous-Alexander":[40.8,5],"Devin Booker":[57.1,4],"Deni Avdija":[13.1,2],"Domantas Sabonis":[45.5,2],"Victor Wembanyama":[16.9,1],"Lauri Markkanen":[46.1,3],"LaMelo Ball":[40.8,3],"De'Aaron Fox":[49.8,4],"Trae Young":[49.0,1],"Damian Lillard":[13.4,2],"Fred VanVleet":[25.0,1],"Payton Pritchard":[7.8,2],"Egor Demin":[7.2,3],"Jose Alvarado":[4.5,1],"Jared McCain":[4.4,2],"T.J. McConnell":[11.0,3],"Immanuel Quickley":[32.5,3],"Davion Mitchell":[12.4,1],"Jrue Holiday":[34.8,2],"Scoot Henderson":[13.6,1],"Keyonte George":[6.6,1],"Ja Morant":[42.2,2],"Jamal Murray":[50.1,3],"Derrick White":[30.3,3],"Dyson Daniels":[25.0,4],"CJ McCollum":[21.0,1],"Reed Sheppard":[11.1,2],"James Harden":[42.3,1],"Zach LaVine":[49.0,1],"Devin Vassell":[27.0,3],"Malik Monk":[21.2,2],"Stephon Castle":[10.0,2],"Bilal Coulibaly":[9.2,1],"Josh Hart":[20.9,2],"Marcus Smart":[5.4,1],"Bogdan Bogdanovic":[16.0,1],"Duncan Robinson":[16.0,2],"Buddy Hield":[9.7,2],"Klay Thompson":[17.5,1],"Christian Braun":[21.6,4],"Jalen Suggs":[32.4,4],"Bradley Beal":[5.6,1],"Jordan Poole":[34.0,1],"Desmond Bane":[39.4,3],"RJ Barrett":[29.6,1],"Jalen Green":[36.3,2],"Josh Green":[14.7,1],"Brandin Podziemski":[5.7,1],"Devin Carter":[5.2,2],"Cam Whitmore":[5.5,1],"Jaylen Brown":[57.1,3],"Jimmy Butler":[56.8,1],"Scottie Barnes":[41.8,4],"Franz Wagner":[41.8,4],"OG Anunoby":[42.5,3],"Brandon Ingram":[40.0,2],"Mikal Bridges":[33.5,4],"Gradey Dick":[7.1,1],"Herbert Jones":[14.9,4],"Dorian Finney-Smith":[13.3,3],"Andrew Wiggins":[30.2,1],"Miles Bridges":[22.8,1],"Trey Murphy III":[27.0,3],"Aaron Gordon":[33.7,3],"Jonathan Kuminga":[24.3,1],"Jonathan Isaac":[14.5,3],"Jaden McDaniels":[26.2,3],"Keldon Johnson":[17.5,1],"Toumani Camara":[18.1,4],"DeMar DeRozan":[25.7,1],"Ausar Thompson":[11.1,1],"Kyshawn George":[3.1,2],"Cooper Flagg":[14.5,3],"Ace Bailey":[9.5,3],"Pascal Siakam":[48.9,2],"Julius Randle":[33.3,2],"Draymond Green":[27.7,1],"Paul George":[54.1,2],"Keegan Murray":[24.1,4],"Jabari Smith Jr.":[23.6,5],"PJ Washington":[19.8,4],"Bobby Portis":[14.5,2],"Jaime Jaquez Jr.":[5.9,1],"Naz Reid":[23.3,4],"Grant Williams":[14.3,1],"Jerami Grant":[34.2,2],"Kyle Kuzma":[20.3,1],"Santi Aldama":[17.0,2],"Obi Toppin":[15.0,2],"Jaylin Williams":[7.8,2],"Amen Thompson":[12.3,1],"Kyle Filipowski":[3.0,2],"GG Jackson":[2.4,1],"Myles Turner":[26.6,3],"Isaiah Stewart":[15.0,2],"Jaren Jackson Jr.":[49.0,4],"Matas Buzelis":[5.7,3],"Joel Embiid":[58.1,3],"Karl-Anthony Towns":[57.1,2],"Evan Mobley":[50.1,4],"Bam Adebayo":[49.5,3],"Alperen Şengün":[35.6,4],"Chet Holmgren":[41.5,5],"Rudy Gobert":[36.5,2],"Ivica Zubac":[20.3,2],"Jakob Poeltl":[19.5,4],"Kel'el Ware":[4.7,2],"Deandre Ayton":[8.1,1],"Jarrett Allen":[28.0,3],"Onyeka Okongwu":[16.1,2],"Neemias Queta":[2.7,1],"Daniel Gafford":[17.3,3],"Clint Capela":[7.0,2],"Isaiah Hartenstein":[28.5,1],"Alex Sarr":[12.4,2],"Donovan Clingan":[7.5,2],"Moussa Diabaté":[2.5,1],"Brook Lopez":[8.8,1],"Nic Claxton":[23.1,2],"Dereck Lively II":[7.2,1],"Khaman Maluach":[6.3,3],"Yves Missi":[3.5,2],"Nolan Traore":[4.0,3],"Dennis Schröder":[14.8,1],"Tre Jones":[8.0,2],"Marcus Sasser":[5.2,1],"Daniss Jenkins":[4.0,1],"Andrew Nembhard":[19.6,2],"Kris Dunn":[5.7,1],"Ty Jerome":[9.2,2],"Scotty Pippen Jr.":[2.5,2],"Dru Smith":[2.6,2],"Dejounte Murray":[32.8,2],"Jeremiah Fears":[7.9,3],"Miles McBride":[4.0,1],"Ajay Mitchell":[2.9,2],"Alex Caruso":[19.6,3],"Anthony Black":[10.1,1],"Jamal Shead":[2.3,1],"Isaiah Collier":[2.8,3],"Craig Porter Jr.":[2.4,1],"Kobe Sanders":[2.2,1],"Kasparas Jakucionis":[3.8,3],"Nickeil Alexander-Walker":[14.4,3],"Aaron Wiggins":[9.2,3],"Grayson Allen":[18.1,2],"Sam Merrill":[9.2,3],"Jaylon Tyson":[3.7,2],"Max Christie":[8.3,2],"Julian Strawther":[4.8,1],"Isaiah Joe":[11.3,2],"Moses Moody":[12.5,2],"Max Strus":[16.7,1],"Cedric Coward":[6.0,3],"Jaylen Wells":[2.3,2],"Cam Spencer":[2.4,3],"Pelle Larsson":[2.3,1],"Ryan Rollins":[4.0,2],"Kevin Porter Jr.":[5.4,1],"Caris LeVert":[14.8,1],"A.J. Green":[10.0,4],"Terrence Shannon Jr.":[2.8,2],"Cason Wallace":[7.4,1],"Lu Dort":[18.2,1],"V.J. Edgecombe":[11.7,3],"Kentavious Caldwell-Pope":[21.6,1],"Shaedon Sharpe":[20.1,4],"Dylan Harper":[13.0,3],"Ja’Kobe Walter":[3.8,2],"Sion James":[2.4,3],"Tre Johnson":[8.6,3],"Sam Hauser":[10.8,3],"Baylor Scheierman":[2.7,2],"Terance Mann":[15.5,2],"Kon Knueppel":[10.5,3],"Royce O’Neale":[11.4,2],"Isaac Okoro":[11.8,1],"Naji Marshall":[9.4,1],"Zaccharie Risacher":[13.8,2],"Cameron Johnson":[23.1,1],"Ron Holland":[9.1,2],"Gui Santos":[4.6,3],"Aaron Nesmith":[11.0,3],"Derrick Jones Jr.":[10.5,1],"Ziaire Williams":[6.2,1],"Jake LaRavia":[6.0,1],"Dalton Knecht":[4.2,1],"Saddiq Bey":[6.4,1],"Jalen Williams":[41.5,5],"Dillon Brooks":[20.0,1],"Tristan da Silva":[4.0,2],"De’Andre Hunter":[24.9,1],"Nique Clifford":[3.3,3],"Julian Champagnie":[3.0,1],"Brice Sensabaugh":[4.9,1],"Will Riley":[3.7,3],"Hugo Gonzalez":[2.9,3],"Jordan Miller":[2.5,1],"Justin Edwards":[2.4,2],"Vit Krejci":[2.7,2],"Jamison Battle":[2.3,1],"Noah Clowney":[5.4,1],"Patrick Williams":[18.0,3],"Paul Reed":[5.0,1],"Jarace Walker":[8.5,1],"Jarred Vanderbilt":[12.4,2],"Dominick Barlow":[3.4,1],"Collin Murray-Boyles":[6.6,3],"Taylor Hendricks":[7.8,1],"Cody Williams":[6.0,2],"Karlo Matkovic":[2.3,1],"Kenrich Williams":[7.2,1],"Noah Penda":[2.2,3],"Luka Garza":[2.8,1],"Day’Ron Sharpe":[6.2,1],"Danny Wolf":[2.9,3],"Ryan Kalkbrenner":[2.4,3],"Jalen Smith":[9.4,1],"Al Horford":[6.0,1],"Steven Adams":[13.0,2],"Jay Huff":[2.7,2],"Isaiah Jackson":[7.0,2],"Derik Queen":[5.4,3],"Wendell Carter Jr.":[18.1,3],"Adem Bona":[2.3,2],"Oso Ighodaro":[2.3,2],"Maxime Raynaud":[2.2,2],"Luke Kornet":[10.4,3],"Nikola Jovic":[16.2,4],"Goga Bitadze":[7.6,1],"Dylan Cardwell":[2.2,3]};
+/* ---------------- NBA FINANCES ----------------
+   Real 2026-27 numbers ($M): salary cap, luxury tax line and both aprons as announced by the league,
+   real player salaries where known (REAL_CONTRACTS), and the CBA rules that matter in this game:
+   a soft cap, a luxury tax with repeater rates, apron trade restrictions and salary matching.
+   The roster here is 10 players, so spots 11–14 are charged as minimum contracts. */
+const NBA_CBA = {
+  cap:164.961, floor:148.465, tax:200.428, apron1:209.015, apron2:221.686,
+  mle:15.044, taxMle:6.064, roomMle:9.366,
+  vetMin:2.46,        // approx. cap hit of a veteran minimum deal
+  taxBracket:6.064,   // width of one luxury tax bracket
+  tradeBand:8.829     // salary-matching tiers: up to 1 band, up to 4 bands, above
+};
+const CAP_GROWTH = 1.07;       // assumed yearly cap growth in dynasty mode (the CBA limits it to +10%)
+const CONTRACT_RAISE = 1.05;   // yearly raise on a running contract
+const ROSTER_FILL_SPOTS = 4;
+const CAP_EPS = 0.05;
+let capYear = 0;               // dynasty seasons played since the draft
+let contractBook = {};         // name -> {sal, yrs, est} once a contract has changed in dynasty mode
+let taxSeasons = [];           // one flag per finished season: was the team a taxpayer
+let lastOffseasonFinance = null;
+
+function cba(){
+  const k = Math.pow(CAP_GROWTH, capYear), out = {};
+  for(const key in NBA_CBA) out[key] = NBA_CBA[key] * k;
+  return out;
+}
+function capSeasonLabel(){ const y = 2026 + capYear; return `${y}-${String((y+1)%100).padStart(2,'0')}`; }
+function round1(v){ return Math.round(v*10)/10; }
+function fmtM(v){ return '$' + round1(v).toFixed(1) + 'M'; }
+
+// Market value by rating — fitted to the real 2026-27 salaries of the players in the pool.
+function marketSalaryByRating(r){
+  const pts = [[70,2.5],[75,4],[78,8],[80,11],[82,22],[84,33],[86,40],[88,45],[90,49.5],[94,57.7]];
+  if(r <= pts[0][0]) return pts[0][1];
+  for(let i=1;i<pts.length;i++){
+    if(r <= pts[i][0]){
+      const [r0,s0] = pts[i-1], [r1,s1] = pts[i];
+      return s0 + (s1-s0) * (r-r0)/(r1-r0);
+    }
+  }
+  return pts[pts.length-1][1];
+}
+// Used only when the real salary is unknown: legends get a max contract (25/30/35% of the cap),
+// rookies a rookie-scale deal, everybody else his market value.
+function estimatedSalary(p){
   const r = Number(p?.r||70);
-  if(r<80) return Math.round(4 + (r-70)*0.8);
-  if(r<85) return Math.round(12 + (r-80)*2);
-  if(r<90) return Math.round(22 + (r-85)*3.6);
-  if(r<95) return Math.round(40 + (r-90)*5);
-  return Math.round(65 + (r-95)*8);
+  if(p?.leg) return NBA_CBA.cap * (r>=94 ? 0.35 : r>=90 ? 0.30 : 0.25);
+  if(p?.rookie) return r>=79 ? 12.5 : r>=77 ? 9 : r>=75 ? 6 : r>=73 ? 4.2 : 2.9;
+  return marketSalaryByRating(r);
 }
+function baseContract(p){
+  const real = REAL_CONTRACTS[p.n];
+  const raise = Math.pow(CONTRACT_RAISE, capYear);
+  if(real) return {sal: round1(real[0]*raise), yrs: Math.max(1, real[1]||1), est:false};
+  const yrs = p.leg ? 3 : p.rookie ? 4 : 1 + (String(p.n||'').length % 3);
+  return {sal: round1(estimatedSalary(p)*raise), yrs, est:true};
+}
+function playerContract(p){
+  if(!p) return {sal:0, yrs:0, est:true};
+  return contractBook[p.n] || baseContract(p);
+}
+function playerSalary(p){ return playerContract(p).sal; }
+function contractTag(p){ const c = playerContract(p); return `${c.est?'≈':''}${fmtM(c.sal)} · ${c.yrs}y`; }
+
+function capRosterPlayers(){ return [...POSITIONS.map(pos=>squad[pos]).filter(Boolean), ...(bench||[])]; }
+function rosterFillCharge(){ return ROSTER_FILL_SPOTS * cba().vetMin; }
 function capSpentSoFar(){
-  let total = 0;
-  POSITIONS.forEach(pos=>{ if(squad[pos]) total += playerSalary(squad[pos]); });
-  (bench||[]).forEach(p=>{ total += playerSalary(p); });
-  return total;
+  return round1(capRosterPlayers().reduce((s,p)=>s + playerSalary(p), 0) + rosterFillCharge());
 }
-function capRemaining(){ return SALARY_CAP - capSpentSoFar(); }
+// The draft is hard-capped at the second apron.
+function capRemaining(){ return cba().apron2 - capSpentSoFar() + CAP_EPS; }
+
+function payrollStatus(total){
+  const c = cba();
+  if(total > c.apron2 + CAP_EPS) return {key:'apron2', label:'OVER 2ND APRON', cls:'over'};
+  if(total > c.apron1 + CAP_EPS) return {key:'apron1', label:'OVER 1ST APRON', cls:'over'};
+  if(total > c.tax + CAP_EPS)    return {key:'tax',    label:'LUXURY TAX',     cls:'warn'};
+  if(total > c.cap + CAP_EPS)    return {key:'over',   label:'OVER THE CAP',   cls:'mid'};
+  return {key:'room', label:'CAP ROOM', cls:'good'};
+}
+// Repeater: a taxpayer in at least 3 of the previous 4 seasons.
+function isRepeaterTaxpayer(){ return taxSeasons.slice(-4).filter(Boolean).length >= 3; }
+function luxuryTaxBill(total){
+  const c = cba();
+  let over = total - c.tax;
+  if(over <= CAP_EPS) return 0;
+  const rates = isRepeaterTaxpayer() ? [3, 3.25, 5.5, 6.75] : [1, 1.25, 3.5, 4.75];
+  let bill = 0;
+  for(let i=0; over>0; i++){
+    const chunk = Math.min(over, c.taxBracket);
+    bill += chunk * (i<4 ? rates[i] : rates[3] + 0.5*(i-3));
+    over -= chunk;
+  }
+  return bill;
+}
+function payrollRuleNote(status){
+  const c = cba();
+  switch(status.key){
+    case 'apron2': return 'Over the 2nd apron: no aggregating salaries in a trade and no taking back more salary than you send out.';
+    case 'apron1': return 'Over the 1st apron: you can’t take back more salary than you send out in a trade.';
+    case 'tax':    return `Taxpayer: every dollar over ${fmtM(c.tax)} is taxed. Taking back extra salary in a trade hard-caps you at the 1st apron.`;
+    case 'over':   return 'Over the cap: trades have to match salaries, new signings only through exceptions.';
+    default:       return `Under the cap: ${fmtM(c.cap - capSpentSoFar())} of room to absorb salary in a trade.`;
+  }
+}
+
 function renderCapBar(){
   const spentEl=document.getElementById('capSpent'), fillEl=document.getElementById('capFill');
   if(!spentEl||!fillEl) return;
-  const spent=capSpentSoFar(), pct=Math.max(0,Math.min(100, spent/SALARY_CAP*100));
-  spentEl.textContent='$'+spent+'M';
-  fillEl.style.width=pct+'%';
-  fillEl.classList.toggle('warn', spent<=SALARY_CAP && spent/SALARY_CAP>=.8);
-  fillEl.classList.toggle('over', spent>SALARY_CAP);
+  const c = cba(), spent = capSpentSoFar(), status = payrollStatus(spent);
+  const pos = v => Math.max(0, Math.min(100, v/c.apron2*100));
+  spentEl.textContent = fmtM(spent);
+  fillEl.style.width = pos(spent)+'%';
+  fillEl.classList.toggle('warn', status.key==='tax');
+  fillEl.classList.toggle('over', status.key==='apron1' || status.key==='apron2');
+  const hard=document.getElementById('capHard'); if(hard) hard.textContent = fmtM(c.apron2);
+  const st=document.getElementById('capStatus'); if(st){ st.textContent = status.label; st.className = 'cap-status '+status.cls; }
+  [['capTickCap',c.cap],['capTickTax',c.tax],['capTickApron',c.apron1]].forEach(([id,v])=>{ const t=document.getElementById(id); if(t) t.style.left = pos(v)+'%'; });
+  const lines=document.getElementById('capLines');
+  if(lines) lines.innerHTML = `<span>Cap ${fmtM(c.cap)}</span><span>Tax ${fmtM(c.tax)}</span><span>1st apron ${fmtM(c.apron1)}</span><span>2nd apron ${fmtM(c.apron2)}</span>`;
+}
+
+// Payroll sheet on the roster screen.
+function renderPayrollPanel(){
+  const el=document.getElementById('payrollPanel'); if(!el) return;
+  const c = cba(), total = capSpentSoFar(), status = payrollStatus(total), bill = luxuryTaxBill(total);
+  const rows = capRosterPlayers().slice().sort((a,b)=>playerSalary(b)-playerSalary(a)).map(p=>{
+    const k = playerContract(p);
+    return `<div class="link-item"><span><b>${p.n}</b>${p.leg?' ★':''} <span class="payroll-dim">${p.pos||''} · ${p.r} OVR</span></span><span class="payroll-num">${k.est?'≈':''}${fmtM(k.sal)} <span class="payroll-dim">${k.yrs}y</span></span></div>`;
+  }).join('');
+  const room = c.cap - total;
+  el.innerHTML = `<div class="court-title">PAYROLL · ${capSeasonLabel()} <span class="cap-status ${status.cls}">${status.label}</span></div>
+    ${rows}
+    <div class="link-item"><span class="payroll-dim">End of the bench · ${ROSTER_FILL_SPOTS} minimum contracts</span><span class="payroll-num">${fmtM(rosterFillCharge())}</span></div>
+    <div class="link-item payroll-total"><span><b>Team payroll</b></span><span class="payroll-num"><b>${fmtM(total)}</b></span></div>
+    <div class="link-item"><span>${room>=0?'Cap space':'Over the cap by'} <span class="payroll-dim">cap ${fmtM(c.cap)}</span></span><span class="payroll-num">${fmtM(Math.abs(room))}</span></div>
+    <div class="link-item"><span>Luxury tax bill${isRepeaterTaxpayer()?' <span class="cap-status over">REPEATER</span>':''} <span class="payroll-dim">line ${fmtM(c.tax)}</span></span><span class="payroll-num">${bill>0?fmtM(bill):'—'}</span></div>
+    <div class="center-note" style="margin:8px 0 0;text-align:left;">${payrollRuleNote(status)} ≈ marks an estimated contract.</div>`;
+}
+
+/* Trade legality on your side, as in the CBA:
+   – cap room absorbs incoming salary;
+   – otherwise incoming salary has to fit the matching tiers (200% + $0.25M / +1 band / 125% + $0.25M);
+   – taking back more than you send hard-caps you at the 1st apron;
+   – over the 2nd apron you can’t aggregate salaries at all. */
+function tradeSalaryCheck(give, get){
+  const c = cba();
+  const out = round1(give.reduce((s,p)=>s+playerSalary(p),0)), inc = round1(get.reduce((s,p)=>s+playerSalary(p),0));
+  const before = capSpentSoFar(), after = round1(before - out + inc);
+  const head = `Salary: out ${fmtM(out)} → in ${fmtM(inc)} · payroll ${fmtM(after)}`;
+  const res = (ok, text) => ({ok, out, inc, after, text: ok ? `${head} · ${text}` : text});
+  if(before > c.apron2 + CAP_EPS && give.length > 1)
+    return res(false, `Over the 2nd apron (${fmtM(c.apron2)}) you can’t aggregate salaries — send out one player at a time.`);
+  if(inc <= out + CAP_EPS) return res(true, 'legal');
+  if(after <= c.cap + 0.1 + CAP_EPS) return res(true, 'absorbed into cap room');
+  if(before > c.apron1 + CAP_EPS)
+    return res(false, `Over the 1st apron (${fmtM(c.apron1)}) you can’t take back more salary than you send out: ${fmtM(inc)} in vs ${fmtM(out)} out.`);
+  const limit = out <= c.tradeBand ? out*2 + 0.25 : out <= c.tradeBand*4 ? out + c.tradeBand : out*1.25 + 0.25;
+  if(inc > limit + CAP_EPS)
+    return res(false, `Salaries don’t match: for ${fmtM(out)} going out you can take back at most ${fmtM(limit)} — this is ${fmtM(inc)}.`);
+  if(after > c.apron1 + CAP_EPS)
+    return res(false, `Taking back more salary than you send hard-caps you at the 1st apron (${fmtM(c.apron1)}) — payroll would be ${fmtM(after)}.`);
+  return res(true, `matched, up to ${fmtM(limit)} allowed`);
+}
+
+/* ----- dynasty: one fiscal year ends, the next one begins ----- */
+function closeFiscalYear(){
+  const total = capSpentSoFar(), bill = luxuryTaxBill(total), repeater = isRepeaterTaxpayer();
+  lastOffseasonFinance = {season: capSeasonLabel(), total, bill, repeater, resigned: [], signings: []};
+  taxSeasons.push(total > cba().tax + CAP_EPS);
+}
+// Call after ageing and retirements: running contracts get a raise, expired ones are re-signed
+// with Bird rights at the new market value — which is how a payroll climbs past the aprons.
+function rollContractsForNewSeason(){
+  const snapshot = capRosterPlayers().map(p=>({p, k:playerContract(p)}));
+  capYear += 1;
+  const growth = Math.pow(CAP_GROWTH, capYear);
+  snapshot.forEach(({p,k})=>{
+    if(k.yrs > 1){ contractBook[p.n] = {sal: round1(k.sal*CONTRACT_RAISE), yrs: k.yrs-1, est: k.est}; return; }
+    const age = playerAge(p);
+    let sal = p.leg ? estimatedSalary(p)*growth : marketSalaryByRating(Number(p.r)||70) * growth * (age>=34 ? 0.6 : age>=32 ? 0.8 : 1);
+    sal = round1(Math.max(sal, cba().vetMin));
+    const yrs = age>=33 ? 1 : age>=30 ? 2 : 3;
+    contractBook[p.n] = {sal, yrs, est:true};
+    if(lastOffseasonFinance) lastOffseasonFinance.resigned.push({name:p.n, old:k.sal, sal, yrs});
+  });
+}
+// What a team may spend on one new player right now.
+function signingLimit(){
+  const c = cba(), total = capSpentSoFar();
+  if(total < c.cap - CAP_EPS) return {max: Math.max(c.cap - total, c.roomMle), via: c.cap-total >= c.roomMle ? 'cap room' : 'room mid-level exception'};
+  if(total + c.mle <= c.apron1 + CAP_EPS) return {max: c.mle, via:'non-taxpayer mid-level exception'};
+  if(total + c.taxMle <= c.apron2 + CAP_EPS) return {max: c.taxMle, via:'taxpayer mid-level exception'};
+  return {max: c.vetMin, via:'minimum contract'};
+}
+// Picks a replacement the team can actually afford; if nobody fits, the cheapest one signs for the minimum.
+function pickAffordableSigning(pool){
+  if(!pool.length) return null;
+  const limit = signingLimit();
+  const fits = pool.filter(p=>playerSalary(p) <= limit.max + CAP_EPS);
+  let pick, via = limit.via;
+  if(fits.length) pick = fits[Math.floor(Math.random()*fits.length)];
+  else {
+    pick = pool.slice().sort((a,b)=>playerSalary(a)-playerSalary(b))[0];
+    contractBook[pick.n] = {sal: round1(cba().vetMin), yrs:1, est:true};
+    via = 'minimum contract';
+  }
+  if(lastOffseasonFinance) lastOffseasonFinance.signings.push({name:pick.n, sal:playerSalary(pick), via});
+  return pick;
+}
+function offseasonFinanceHtml(){
+  const f = lastOffseasonFinance; if(!f) return '';
+  const c = cba(), total = capSpentSoFar(), status = payrollStatus(total);
+  const line = t => `<div class="season-event-note" style="text-align:left;margin-top:8px;">${t}</div>`;
+  let html = line(`<b>${f.season} books closed.</b> Payroll ${fmtM(f.total)} · luxury tax paid: <b>${f.bill>0?fmtM(f.bill):'none'}</b>${f.repeater&&f.bill>0?' at repeater rates':''}.`);
+  html += line(`<b>${capSeasonLabel()} cap:</b> ${fmtM(c.cap)} · tax ${fmtM(c.tax)} · aprons ${fmtM(c.apron1)} / ${fmtM(c.apron2)}. Running contracts get a 5% raise.`);
+  if(f.resigned.length) html += line(`<b>Re-signed with Bird rights:</b> ${f.resigned.map(r=>`${r.name} ${fmtM(r.old)} → ${fmtM(r.sal)} · ${r.yrs}y`).join('; ')}.`);
+  if(f.signings.length) html += line(`<b>Signed:</b> ${f.signings.map(s=>`${s.name} ${fmtM(s.sal)} via ${s.via}`).join('; ')}.`);
+  html += line(`<b>New payroll: ${fmtM(total)}</b> · ${status.label}${isRepeaterTaxpayer()?' · <b>repeater taxpayer</b>':''}. ${payrollRuleNote(status)}`);
+  return html;
 }
 function showCapToast(text){
   let el=document.getElementById('capToast');
@@ -2608,6 +2816,7 @@ function startCaptainDraft(keepDaily=false){
 function startDraft(keepDaily=false){
   if(!keepDaily) { dailyChallengeMode=false; dailySeed=''; dailyRng=null; }
   currentRunNumber=nextRunNumber(); rarePullsLoaded=false;
+  capYear = 0; contractBook = {}; taxSeasons = []; lastOffseasonFinance = null;
   squad = {}; currentIdx = 0; usedNames = new Set(); lastSeasonGames=[]; lastSeasonWins=0; lastSeasonLosses=0; seasonAwards=null; seasonSimulationStarted=false; tradeDeadlineActive=false; tradeDeadlineEvent=null;
   frontOfficeHistory = []; frontOfficeUsedThisSeason = 0; frontOfficeChemistryModifier = 0;
   bench = []; benchIdx = 0; selectedSwap = null;
@@ -2717,7 +2926,7 @@ function revealCaptainPack(){
           <div class="card-top" style="background:${color}"></div>
           <div class="card-body">
             <div class="card-rating">${p.r}</div>
-            <div class="card-cost">$${playerSalary(p)}M</div>
+            <div class="card-cost">${fmtM(playerSalary(p))}</div>
             <div class="card-pos">${p.pos} · CAPTAIN</div>
             <div class="card-name">${p.n}</div>
             <div class="card-team">${TEAM_NAMES[p.t]||p.t}</div>
@@ -2856,7 +3065,7 @@ function revealPack(pos){
     },isMystery?900+idx*120:220+idx*cfg.revealMs/2);
     fc.addEventListener('click',()=>{
       if(!fc.classList.contains('flipped')) return;
-      if(fc.classList.contains('over-cap')){ showCapToast('Not enough cap space — pick a cheaper card.'); return; }
+      if(fc.classList.contains('over-cap')){ showCapToast('That would put you over the 2nd apron hard cap — pick a cheaper card.'); return; }
       draftPlayer(pos,p);
     });
   });
@@ -2970,7 +3179,7 @@ function renderBenchPickRow(p, idx, overCap){
       </div>
       <div class="bp-info">
         <div class="bp-name">${p.n}${p.leg?' <span class="bp-leg">LEGEND</span>':''}</div>
-        <div class="bp-meta">${p.pos} · ${p.t} · $${cost}M${overCap?' · no cap space':''}</div>
+        <div class="bp-meta">${p.pos} · ${p.t} · ${contractTag(p)}${overCap?' · over the hard cap':''}</div>
       </div>
       <div class="bp-rating">${p.r}</div>
     </div>`;
@@ -2978,7 +3187,7 @@ function renderBenchPickRow(p, idx, overCap){
 
 function pickBenchPlayer(idx){
   const rows = document.querySelectorAll('.bench-pick-row');
-  if(rows[idx] && rows[idx].classList.contains('over-cap')){ showCapToast('Not enough cap space — pick a cheaper player.'); return; }
+  if(rows[idx] && rows[idx].classList.contains('over-cap')){ showCapToast('That would put you over the 2nd apron hard cap — pick a cheaper player.'); return; }
   const p = currentBenchCandidates[idx];
   bench.push(p);
   usedNames.add(p.n);
@@ -3376,14 +3585,14 @@ function backfillRetiredSlot(entry){
   if(entry.isBench){
     const pool = allPlayersFlat().filter(p=>!usedNames.has(p.n) && p.r<=BENCH_MAX_RATING);
     if(!pool.length) return null;
-    const pick = pool[Math.floor(Math.random()*pool.length)];
+    const pick = pickAffordableSigning(pool);
     usedNames.add(pick.n);
     bench.push(pick);
     return pick;
   } else {
     const pool = (POOL[entry.pos]||[]).filter(p=>!usedNames.has(p.n));
     if(!pool.length) return null;
-    const pick = pool[Math.floor(Math.random()*pool.length)];
+    const pick = pickAffordableSigning(pool);
     usedNames.add(pick.n);
     squad[entry.pos] = pick;
     return pick;
@@ -3405,7 +3614,7 @@ function showOffseasonRecap(retirements, avgBefore, avgAfter, onContinue){
           : `is hanging up his sneakers at ${who.age}`;
         return `<div class="season-event-note" style="text-align:left;margin-top:8px;">
             <b>${who.n}</b> ${reasonText}.<br>
-            ${repl ? `Replacement: <b>${repl.n}</b> — ${repl.r} OVR${repl.pos?', '+repl.pos:''}` : 'No free agent was available as a replacement — the slot stays empty for now.'}
+            ${repl ? `Replacement: <b>${repl.n}</b> — ${repl.r} OVR${repl.pos?', '+repl.pos:''} · ${contractTag(repl)}` : 'No free agent was available as a replacement — the slot stays empty for now.'}
           </div>`;
       }).join('')
     : `<div class="season-event-note" style="margin-top:8px;">Everyone is back — nobody retired this offseason.</div>`;
@@ -3422,6 +3631,7 @@ function showOffseasonRecap(retirements, avgBefore, avgAfter, onContinue){
       <div class="season-event-stat"><div class="n">${deltaText}</div><div class="l">delta</div></div>
     </div>
     ${retirementsHtml}
+    ${offseasonFinanceHtml()}
     <div class="season-event-actions"><button class="btn" id="offseasonContinueBtn">START NEW SEASON</button></div>
   `;
   document.getElementById('offseasonContinueBtn').onclick = ()=>{
@@ -3437,7 +3647,9 @@ function continueWithSameTeam(){
   const roster = [...POSITIONS.map(pos=>squad[pos]).filter(Boolean), ...bench];
   const avgBefore = roster.length ? roster.reduce((s,p)=>s+p.r,0)/roster.length : 0;
 
+  closeFiscalYear();
   const retired = ageRosterForNewSeason();
+  rollContractsForNewSeason();
   retired.forEach(r=>{ r.replacement = backfillRetiredSlot(r); });
 
   const rosterAfter = [...POSITIONS.map(pos=>squad[pos]).filter(Boolean), ...bench];
@@ -3617,7 +3829,7 @@ function renderTradeRow(player, displayPos, selected, onclickStr){
       </div>
       <div>
         <div class="rr-name">${player.n}${player.leg?' ★':''}</div>
-        <div class="rr-team">${player.t} · ${player.d||''} · ${playerAge(player)} y/o</div>
+        <div class="rr-team">${player.t} · ${playerAge(player)} y/o · ${contractTag(player)}</div>
       </div>
       <div class="rr-rating" style="margin-left:auto">${player.r}</div>
     </div>`;
@@ -3659,6 +3871,7 @@ function renderTradeSummary(){
   const getEl=document.getElementById('tradeGetCount'); if(getEl) getEl.textContent = `${get.length}/${TRADE_MAX_PER_SIDE}`;
   const meterBox=document.getElementById('tradeMeter');
   const roster = tradeRosterCheck(give.length, get.length);
+  const money = (give.length && get.length) ? tradeSalaryCheck(give, get) : {ok:true, text:''};
   if(meterBox){
     if(!give.length || !get.length){
       meterBox.innerHTML = `<div class="trade-meter-head"><span>Trade odds</span><span class="trade-meter-state">—</span></div>
@@ -3671,11 +3884,12 @@ function renderTradeSummary(){
       meterBox.innerHTML = `<div class="trade-meter-head"><span>Trade odds</span><span class="trade-meter-state ${label.cls}">${label.text}</span></div>
         <div class="trade-meter-bar"><div class="trade-meter-fill ${label.cls}" style="width:${Math.round(res.meter*100)}%"></div><div class="trade-meter-mark" style="left:${TRADE_ACCEPT_METER*100}%"></div></div>
         <div class="trade-meter-note">Giving ${give.length} (total OVR ${giveOvr}) → getting ${get.length} (total OVR ${getOvr})</div>
-        <div class="trade-meter-note ${roster.ok?'':'bad'}">${roster.text}</div>`;
+        <div class="trade-meter-note ${roster.ok?'':'bad'}">${roster.text}</div>
+        <div class="trade-meter-note ${money.ok?'':'bad'}">${money.text}</div>`;
     }
   }
   const btn=document.getElementById('tradeProposeBtn');
-  if(btn) btn.disabled = !(give.length && get.length && roster.ok);
+  if(btn) btn.disabled = !(give.length && get.length && roster.ok && money.ok);
   const askBtn=document.getElementById('tradeAskBtn');
   if(askBtn) askBtn.disabled = !get.length;
 }
@@ -3716,6 +3930,7 @@ function askWhatTheyWant(){
   combos.forEach(combo=>{
     const players = combo.map(x=>x.player);
     if(!tradeRosterCheck(players.length, get.length).ok) return;
+    if(!tradeSalaryCheck(players, get).ok) return;
     const res = evaluateTradeOffer(players, get, tradeTargetAbbr);
     const cost = players.reduce((s,p)=>s + tradeWorth(p.r), 0) + players.length * 0.5;
     if(res.accept){
@@ -3737,7 +3952,7 @@ function askWhatTheyWant(){
   } else {
     el.innerHTML = `<div class="trade-result trade-reject">
         <div class="trade-result-title">NOT ENOUGH ASSETS</div>
-        <div class="trade-result-copy">${teamName}: “No package from your roster works for us.”${closest?` Closest: ${closest.combo.map(x=>x.player.n).join(', ')} (${Math.round(closest.res.meter*100)}%).`:''}</div>
+        <div class="trade-result-copy">${teamName}: “No package from your roster works for us.” Only packages that match salaries count.${closest?` Closest: ${closest.combo.map(x=>x.player.n).join(', ')} (${Math.round(closest.res.meter*100)}%).`:''}</div>
       </div>`;
   }
 }
@@ -3745,6 +3960,8 @@ function proposeTrade(){
   const give = tradeGivePlayers(), get = tradeGetPlayers();
   if(!give.length || !get.length || !tradeTargetAbbr) return;
   if(!tradeRosterCheck(give.length, get.length).ok) return;
+  const money = tradeSalaryCheck(give, get);
+  if(!money.ok){ showTradeNotice(money.text); return; }
   const result = evaluateTradeOffer(give, get, tradeTargetAbbr);
   renderTradeResult(result, give, get);
 }
@@ -3882,10 +4099,12 @@ function findTradeOffers(giveKeys){
     });
     combos.forEach(get=>{
       if(!tradeRosterCheck(give.length, get.length).ok) return;
+      const money = tradeSalaryCheck(give, get);
+      if(!money.ok) return;
       const res = evaluateTradeOffer(give, get, ab);
       if(!res.accept) return;
       const quick = get.map(p=>tradeWorth(p.r)).sort((x,y)=>y-x).reduce((s,v,i)=>s+v*TRADE_DEPTH_WEIGHTS[i],0);
-      accepted.push({abbr:ab, get, res, quick});
+      accepted.push({abbr:ab, get, res, quick, money});
     });
   });
   if(!accepted.length) return [];
@@ -3934,7 +4153,7 @@ function runTradeFinder(){
   const names = tradeFinderKeys.map(k=>getTradeGivePlayer(parseTradeKey(k))).filter(Boolean).map(p=>shortName(p.n)).join(' + ');
   if(!tradeFinderOffers.length){
     box.innerHTML = `<div class="trade-result trade-reject"><div class="trade-result-title">NO OFFERS</div>
-      <div class="trade-result-copy">Nobody is willing to give up a player for ${names}. Try adding a second player to the package.</div></div>`;
+      <div class="trade-result-copy">Nobody is willing to give up a player for ${names}. Try adding a second player to the package — offers also have to match salaries.</div></div>`;
     return;
   }
   const giveCount = tradeFinderKeys.length;
@@ -3947,8 +4166,8 @@ function runTradeFinder(){
         <div class="trade-offer-top">${teamLogoHtml(o.abbr)}
           <div><div class="trade-offer-team">${TEAM_NAMES[o.abbr]}</div><div class="trade-offer-mode">${o.res.personality.label}</div></div>
           <span class="trade-offer-tag">${o.tag}</span></div>
-        <div class="trade-offer-get">${o.get.map(p=>`<div class="trade-offer-player"><span class="op-pos">${p.pos}</span><span><span class="op-name">${p.n}${p.leg?' ★':''}</span> <span class="op-meta">${playerAge(p)} y/o</span></span><span class="op-r">${p.r}</span></div>`).join('')}</div>
-        <div class="trade-offer-impact"><span>OVR: ${tradeFinderGiveOvr()} → ${o.get.reduce((s,p)=>s+p.r,0)}</span><span>Roster strength: <b class="${dCls}">${d>0?'+':''}${d.toFixed(1)}</b></span>${o.note?`<span>${o.note}</span>`:''}${roster}</div>
+        <div class="trade-offer-get">${o.get.map(p=>`<div class="trade-offer-player"><span class="op-pos">${p.pos}</span><span><span class="op-name">${p.n}${p.leg?' ★':''}</span> <span class="op-meta">${playerAge(p)} y/o · ${fmtM(playerSalary(p))}</span></span><span class="op-r">${p.r}</span></div>`).join('')}</div>
+        <div class="trade-offer-impact"><span>OVR: ${tradeFinderGiveOvr()} → ${o.get.reduce((s,p)=>s+p.r,0)}</span>${o.money?`<span>Salary: ${fmtM(o.money.out)} → ${fmtM(o.money.inc)}</span>`:''}<span>Roster strength: <b class="${dCls}">${d>0?'+':''}${d.toFixed(1)}</b></span>${o.note?`<span>${o.note}</span>`:''}${roster}</div>
         <div class="trade-offer-actions">
           <button class="btn ghost" type="button" onclick="editFinderOffer(${i})">Edit</button>
           <button class="btn" type="button" onclick="acceptFinderOffer(${i})">Accept</button>
@@ -4033,7 +4252,7 @@ function chooseFrontOfficeTrade(){
     return (a.r - na*2) - (b.r - nb*2);
   })[0];
   if(!outgoing) return null;
-  const pool=allPlayersFlat().filter(p=>p.n!==outgoing.n && !starters.some(s=>s.n===p.n) && !bench.some(b=>b.n===p.n) && !p.leg);
+  const pool=allPlayersFlat().filter(p=>p.n!==outgoing.n && !starters.some(s=>s.n===p.n) && !bench.some(b=>b.n===p.n) && !p.leg && tradeSalaryCheck([outgoing],[p]).ok);
   const targetPos=outgoing.pos;
   const samePos=pool.filter(p=>p.pos===targetPos);
   const candidates=(samePos.length?samePos:pool).slice();
@@ -4201,7 +4420,7 @@ function showSeasonEvent(ev){
     html=`<div class="front-office-kicker">FRONT OFFICE · GAME ${ev.start}</div>
       <div class="front-office-title">🔄 TRADE OPPORTUNITY</div>
       <div class="season-event-copy">Another club wants your player. It’s not just a ratings swap: look at age, role and how well the new player fills a real roster need.</div>
-      <div class="trade-versus"><div class="trade-player"><div class="tp-name">${ev.player.n}</div><div class="tp-meta">${ev.player.pos} · ${ev.player.r} OVR · ${outAge} y/o<br>${playerRole(ev.player)} · ${outChem?'has chemistry with the roster':'no current link'}</div></div><div class="trade-arrow">⇄</div><div class="trade-player"><div class="tp-name">${ev.offer.n}</div><div class="tp-meta">${ev.offer.pos} · ${ev.offer.r} OVR · ${inAge} y/o<br>${playerRole(ev.offer)} · ${playerPotential(ev.offer)} potential${inChem?' · +CHEM':''}</div></div></div>
+      <div class="trade-versus"><div class="trade-player"><div class="tp-name">${ev.player.n}</div><div class="tp-meta">${ev.player.pos} · ${ev.player.r} OVR · ${outAge} y/o · ${fmtM(playerSalary(ev.player))}<br>${playerRole(ev.player)} · ${outChem?'has chemistry with the roster':'no current link'}</div></div><div class="trade-arrow">⇄</div><div class="trade-player"><div class="tp-name">${ev.offer.n}</div><div class="tp-meta">${ev.offer.pos} · ${ev.offer.r} OVR · ${inAge} y/o · ${fmtM(playerSalary(ev.offer))}<br>${playerRole(ev.offer)} · ${playerPotential(ev.offer)} potential${inChem?' · +CHEM':''}</div></div></div>
       <div class="fo-need-row">${POSITIONS.map(pos=>`<span class="fo-need ${needs[pos]>=4?'hot':''}">${pos} ${'★'.repeat(needs[pos])}</span>`).join('')}</div>
       <div class="season-event-note">The key question: <b>what does your franchise need right now?</b> The new player could add strength today but break up a familiar pairing — or fill a weak spot instead.</div>
       <div class="season-event-actions"><button class="btn ghost" onclick="resolveFrontOfficeTrade(false)">DECLINE</button><button class="btn" onclick="resolveFrontOfficeTrade(true)">ACCEPT TRADE</button></div>`;
@@ -5990,6 +6209,7 @@ function showResults(keepSwapSelection){
   document.getElementById('finalBenchDepth').textContent = benchAvg || '—';
   renderRoster('finalRoster', true);
   renderBenchList(bench, 'finalBenchRoster', null, null, true);
+  renderPayrollPanel();
   const bestRun=bestPullOfRun(),bestRunBox=document.getElementById('bestPullRun');
   if(bestRunBox)bestRunBox.innerHTML=bestRun&&bestRun.r>=85?`<div class="court-title">BEST PULL OF THE RUN</div><div class="link-item"><span><b>${bestRun.n}</b></span><span>${bestRun.r} OVR · ${getPlayerRarity(bestRun)}</span></div>`:'';
   renderChain('chainFinal','chainFinalHeader');
