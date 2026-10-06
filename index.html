@@ -691,6 +691,15 @@ header:after{content:"NBA DRAFT NIGHT";position:absolute;right:0;bottom:4px;font
   .conference-tabs{display:flex;justify-content:center;gap:8px;margin:20px 0 14px;flex-wrap:wrap;}
   .conference-tab{border:1px solid var(--line);background:var(--panel2);color:var(--text-dim);padding:9px 15px;border-radius:9px;font:800 10px/1 'IBM Plex Mono',monospace;letter-spacing:1.5px;cursor:pointer;}
   .conference-tab.active{background:var(--wood);border-color:var(--wood);color:#111;}
+  .mode-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-top:20px;}
+  .mode-card{text-align:left;border:1px solid var(--line);background:var(--panel2);color:var(--text);border-radius:14px;padding:20px 18px;cursor:pointer;font:inherit;transition:border-color .2s ease, transform .2s ease;}
+  .mode-card:hover,.mode-card:focus-visible{border-color:var(--wood);transform:translateY(-2px);outline:none;}
+  .mode-card-kicker{font:800 10px/1 'IBM Plex Mono',monospace;letter-spacing:1.5px;color:var(--wood);}
+  .mode-card-title{font-family:'Anton',sans-serif;font-size:36px;letter-spacing:2px;margin:8px 0 6px;}
+  .mode-card-copy{font-size:13px;line-height:1.45;color:var(--text-dim);}
+  .mode-card-count{margin-top:12px;font:600 11px/1.3 'IBM Plex Mono',monospace;color:var(--text);}
+  .mode-tag{color:var(--wood);}
+  .mode-change{color:var(--text-dim);text-decoration:underline;}
   .teams-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;}
   @media(max-width:1050px){.teams-grid{grid-template-columns:repeat(4,minmax(0,1fr));}}
   @media(max-width:760px){.teams-grid{grid-template-columns:repeat(2,minmax(0,1fr));}}
@@ -1170,10 +1179,33 @@ html:has(#screen-draft:not(.hidden))::after{opacity:.07;}
   </header>
 
 
-  <!-- TEAM SELECTION SCREEN -->
-  <div id="screen-team" class="panel">
+  <!-- MODE SELECTION SCREEN -->
+  <div id="screen-mode" class="panel">
     <div class="team-select-head">
-      <div class="season-label">NBA FRANCHISE MODE</div>
+      <div class="season-label">STEP 1 · PLAYER POOL</div>
+      <div class="team-select-title">CHOOSE YOUR ERA</div>
+      <p>Who can come out of the packs? You can switch before every new draft.</p>
+    </div>
+    <div class="mode-grid">
+      <button type="button" class="mode-card" onclick="chooseGameMode('alltime')">
+        <div class="mode-card-kicker">LEGENDS + TODAY</div>
+        <div class="mode-card-title">ALL-TIME</div>
+        <div class="mode-card-copy">Jordan, Kobe, Bird, Shaq and the rest of the legends share the packs with today’s players. Legends are paid like max-contract stars.</div>
+        <div class="mode-card-count" id="modeCountAlltime"></div>
+      </button>
+      <button type="button" class="mode-card" onclick="chooseGameMode('current')">
+        <div class="mode-card-kicker">2026-27 SEASON</div>
+        <div class="mode-card-title">CURRENT</div>
+        <div class="mode-card-copy">Only players who are in the NBA right now, on their real teams. No legends anywhere — not in packs, not in trades, not on opponents.</div>
+        <div class="mode-card-count" id="modeCountCurrent"></div>
+      </button>
+    </div>
+  </div>
+
+  <!-- TEAM SELECTION SCREEN -->
+  <div id="screen-team" class="panel hidden">
+    <div class="team-select-head">
+      <div class="season-label">NBA FRANCHISE MODE · <span class="mode-tag">ALL-TIME</span> · <a href="#" class="mode-change" onclick="showScreen('screen-mode');return false;">change</a></div>
       <div class="team-select-title">CHOOSE YOUR TEAM</div>
       <p>Pick one of the 30 active NBA franchises. You’ll build its roster — a starting five and a bench — and then send the team into the season.</p>
     </div>
@@ -1216,7 +1248,7 @@ html:has(#screen-draft:not(.hidden))::after{opacity:.07;}
     <div class="franchise-strip">
       <div class="franchise-strip-logo" id="draftFranchiseLogo"></div>
       <div>
-        <div class="franchise-strip-kicker">YOUR FRANCHISE</div>
+        <div class="franchise-strip-kicker">YOUR FRANCHISE · <span class="mode-tag">ALL-TIME</span></div>
         <div class="franchise-strip-name" id="draftFranchiseLabel">NBA TEAM</div>
       </div>
     </div>
@@ -2781,12 +2813,13 @@ function renderFranchiseUI(){
 }
 
 /* ---------------- INITIAL SCREEN ---------------- */
-// The franchise picker is the first playable screen.
+// The mode picker is the first screen, the franchise picker follows.
 window.addEventListener('DOMContentLoaded', ()=>{
+  renderModeScreen();
   loadDynastyMeta();
   loadRunNumberCache();
   renderTeamChoices();
-  showScreen('screen-team');
+  showScreen('screen-mode');
 });
 
 /* ---------------- SCREEN CONTROL ---------------- */
@@ -2798,7 +2831,7 @@ function triggerBonusAfterPick(next){
 }
 
 function showScreen(id){
-  ['screen-start','screen-team','screen-draft','screen-simulate','screen-awards','screen-results','screen-playoffs','screen-history','screen-collection','screen-hof','screen-share','screen-trade'].forEach(s=>{
+  ['screen-mode','screen-start','screen-team','screen-draft','screen-simulate','screen-awards','screen-results','screen-playoffs','screen-history','screen-collection','screen-hof','screen-share','screen-trade'].forEach(s=>{
     const el=document.getElementById(s);
     if(!el) return;
     const shouldShow=s===id;
@@ -2806,7 +2839,7 @@ function showScreen(id){
     if(shouldShow){ el.classList.remove('screen-enter'); void el.offsetWidth; el.classList.add('screen-enter'); }
   });
 }
-function resetToStart(){ selectedTeam=null; renderTeamChoices(); showScreen('screen-team'); }
+function resetToStart(){ selectedTeam=null; renderTeamChoices(); renderModeScreen(); showScreen('screen-mode'); }
 
 /* ---------------- DRAFT FLOW ---------------- */
 function startCaptainDraft(keepDaily=false){
@@ -3049,7 +3082,7 @@ function posNeedNote(pos){
 }
 
 function revealPack(pos){
-  currentOptions=pickN(POOL[pos],5);markPlayersSeen(currentOptions);
+  currentOptions=pickN(draftPool(pos),5);markPlayersSeen(currentOptions);
   const stage=document.getElementById('packStage');stage.innerHTML='';const row=document.createElement('div');row.className='cards-row';stage.appendChild(row);
   const mysteryIndex=Math.random()<.22?Math.floor(Math.random()*currentOptions.length):-1;
   const capBudget=capRemaining(), capCosts=currentOptions.map(p=>playerSalary(p)), capMin=Math.min(...capCosts), capAnyFits=capCosts.some(c=>c<=capBudget);
@@ -3111,8 +3144,25 @@ function draftPlayer(pos, player){
 }
 
 /* ---------------- BENCH DRAFT (скамейка, без анимации, 1 из 5) ---------------- */
+/* Game mode: 'alltime' keeps the legends in the pool, 'current' leaves only active NBA players.
+   Everything that deals players (packs, bench, trades, signings, opponent stars) goes through these helpers;
+   the collection reads POOL directly, so it always lists everybody. */
+let gameMode = 'alltime';
+function modeAllows(p){ return gameMode!=='current' || !p.leg; }
+function draftPool(pos){ return (POOL[pos]||[]).filter(modeAllows); }
 function allPlayersFlat(){
-  return POSITIONS.flatMap(pos => POOL[pos].map(p=>({...p, pos})));
+  return POSITIONS.flatMap(pos => draftPool(pos).map(p=>({...p, pos})));
+}
+function renderModeScreen(){
+  const all = Object.values(POOL).flat(), legends = all.filter(p=>p.leg).length;
+  const a=document.getElementById('modeCountAlltime'); if(a) a.textContent = `${all.length} players · ${legends} legends`;
+  const c=document.getElementById('modeCountCurrent'); if(c) c.textContent = `${all.length-legends} players · 0 legends`;
+  document.querySelectorAll('.mode-tag').forEach(el=>{ el.textContent = gameMode==='current' ? 'CURRENT' : 'ALL-TIME'; });
+}
+function chooseGameMode(mode){
+  gameMode = mode==='current' ? 'current' : 'alltime';
+  renderModeScreen();
+  openTeamSelection();
 }
 
 const BENCH_MAX_RATING = 85;
@@ -3590,7 +3640,7 @@ function backfillRetiredSlot(entry){
     bench.push(pick);
     return pick;
   } else {
-    const pool = (POOL[entry.pos]||[]).filter(p=>!usedNames.has(p.n));
+    const pool = draftPool(entry.pos).filter(p=>!usedNames.has(p.n));
     if(!pool.length) return null;
     const pick = pickAffordableSigning(pool);
     usedNames.add(pick.n);
@@ -5742,7 +5792,7 @@ let collectionLoaded = false;
 const COLLECTION_STORAGE_KEY = 'collection:players';
 const META_STORAGE_KEY = 'dynasty:meta';
 const TROPHIES = [
-  {id:'no_legends', icon:'🧱', name:'Title Without a Legend', desc:'Win the championship without a single legend in your starting five or on your bench.'},
+  {id:'no_legends', icon:'🧱', name:'Title Without a Legend', desc:'Win the championship in All-Time mode without a single legend in your starting five or on your bench.'},
   {id:'eighth_seed_final', icon:'8️⃣', name:'The Eighth Seed', desc:'Reach the Finals as the #8 seed.'},
   {id:'perfect_playoffs', icon:'💯', name:'Perfect Playoffs', desc:'Win all 16 playoff games — a 16–0 run.'},
   {id:'collect_half', icon:'📖', name:'Half the Collection', desc:'Unlock 50% of all players in the collection — from packs or the bench, it doesn’t matter.'},
@@ -5890,7 +5940,7 @@ async function checkRunTrophies(){
   const starters=POSITIONS.map(pos=>squad[pos]).filter(Boolean);
   const all=[...starters,...bench];
   const champion=!!playoffState && !playoffState.eliminated && playoffState.round>=4;
-  if(champion && all.length && all.every(p=>!p.leg)) unlockTrophy('no_legends');
+  if(champion && gameMode==='alltime' && all.length && all.every(p=>!p.leg)) unlockTrophy('no_legends');
   if(playoffState && playoffState.round>=4 && playoffState.seed===8) unlockTrophy('eighth_seed_final');
   if(champion){
     const totalPlayoffWins=(playoffState.results||[]).reduce((sum,r)=>sum+(r.series?.myWins||0),0);
@@ -5950,6 +6000,7 @@ function buildSnapshot(){
     seasonWins: lastSeasonWins || 0,
     seasonLosses: lastSeasonLosses || (SEASON_GAMES - (lastSeasonWins || 0)),
     playoffResult: currentPlayoffLabel(),
+    mode: gameMode,
     champion,
     year: new Date().getFullYear(),
     finalsScore: finalsGame ? {my: finalsGame.myScore, opp: finalsGame.oppScore} : null,
@@ -6151,7 +6202,7 @@ function renderHistoryRow(s, isBest){
       ${isBest?'<div class="history-crown">BEST ROSTER</div>':''}
       <div class="history-top">
         <span class="history-power">${s.power}</span>
-        <span class="history-meta">rating ${s.avgRating} · chemistry ${s.chem}/${s.chemMax}${benchStr} · grade ${s.grade}</span>
+        <span class="history-meta">rating ${s.avgRating} · chemistry ${s.chem}/${s.chemMax}${benchStr} · grade ${s.grade}${s.mode?' · '+(s.mode==='current'?'current':'all-time'):''}</span>
       </div>
       <div class="history-players">${playersStr}</div>
       <div class="history-bottom">
