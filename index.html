@@ -1308,6 +1308,70 @@ html:has(#screen-draft:not(.hidden))::after{opacity:.07;}
 .duel-pos{font:700 11px/1 'IBM Plex Mono',monospace;color:var(--text-dim);width:22px;}
 .duel-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .duel-r{font:700 13px/1 'IBM Plex Mono',monospace;}
+/* live match */
+.live-slot .duel-banner{border-color:var(--teal);background:linear-gradient(135deg,rgba(36,200,176,.12),transparent 70%),var(--panel2);}
+.live-slot .duel-banner-kicker{color:var(--teal);}
+#screen-live .btn[disabled],#screen-live .clutch-choice[disabled],#screen-live .rest-btn[disabled]{opacity:.5;cursor:default;}
+.lv-diff{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}
+.lv-diff .rest-btn{padding:10px 16px;font-size:12px;}
+.lv-chips{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:10px;}
+.lv-chips .cap-status{margin-left:0;}
+.lv-note{margin:12px 0 0;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--panel2);font-size:12px;line-height:1.5;color:var(--text-dim);text-align:center;}
+.lv-note.warn{border-color:var(--gold);color:var(--text);}
+.lv-empty{margin:16px 0;padding:18px 16px;border:1px dashed var(--line);border-radius:14px;text-align:center;}
+.lv-empty b{display:block;font-family:'Anton','Impact','HelveticaNeue-CondensedBlack','Roboto Condensed','Arial Narrow',sans-serif;font-size:22px;letter-spacing:1px;font-weight:400;}
+.lv-empty p{font-size:12px;color:var(--text-dim);line-height:1.6;max-width:420px;margin:8px auto 14px;}
+.lv-wait{display:flex;align-items:center;justify-content:center;min-height:120px;text-align:center;font-size:13px;color:var(--text-dim);line-height:1.5;}
+.lv-ready{display:flex;flex-wrap:wrap;gap:8px 18px;justify-content:center;font-size:13px;margin-top:4px;}
+.lv-board{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:10px;padding:14px 12px;border:1px solid var(--line);border-radius:14px;background:var(--panel2);}
+.lv-side{min-width:0;border-top:3px solid var(--tc,#666);padding-top:8px;text-align:left;}
+.lv-side:last-child{text-align:right;}
+.lv-name{font-family:'Anton','Impact','HelveticaNeue-CondensedBlack','Roboto Condensed','Arial Narrow',sans-serif;font-size:20px;letter-spacing:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.lv-team{font-size:11px;color:var(--text-dim);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.lv-mid{text-align:center;}
+.lv-score{font-family:'Anton','Impact','HelveticaNeue-CondensedBlack','Roboto Condensed','Arial Narrow',sans-serif;font-size:46px;line-height:1;display:flex;gap:8px;justify-content:center;align-items:baseline;font-variant-numeric:tabular-nums;}
+.lv-score i{font-style:normal;color:var(--text-dim);font-size:28px;}
+.lv-score span{transition:color .5s ease;}
+.lv-score span.pulse{color:var(--wood);transition:none;}
+.lv-period{font:700 11px/1 'IBM Plex Mono',monospace;letter-spacing:1.5px;color:var(--wood);margin-top:8px;white-space:nowrap;}
+.lv-line{display:flex;flex-wrap:wrap;gap:4px 12px;justify-content:center;font:600 11px/1.3 'IBM Plex Mono',monospace;color:var(--text-dim);margin-top:8px;}
+.lv-timer{margin:14px 0 2px;}
+.lv-timer-bar{height:6px;border-radius:3px;background:var(--line);overflow:hidden;}
+.lv-timer-bar span{display:block;height:100%;width:100%;background:var(--wood);transition:width .5s linear;}
+.lv-timer.low .lv-timer-bar span{background:var(--err);}
+.lv-timer-txt{display:flex;justify-content:space-between;gap:10px;font:700 11px/1.3 'IBM Plex Mono',monospace;color:var(--text-dim);margin-top:6px;letter-spacing:1px;}
+.lv-title{font-family:'Anton','Impact','HelveticaNeue-CondensedBlack','Roboto Condensed','Arial Narrow',sans-serif;font-size:26px;letter-spacing:1px;text-align:center;margin:16px 0 2px;}
+.lv-title.win{color:var(--teal);}
+.lv-sub{text-align:center;font-size:12px;color:var(--text-dim);line-height:1.5;}
+.lv-feed{margin-top:14px;display:flex;flex-direction:column;gap:5px;min-height:240px;}
+.lv-ev{display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:8px;align-items:baseline;padding:8px 10px;border-radius:9px;background:var(--panel2);border-left:3px solid var(--wood);font-size:13px;animation:lvIn .25s ease;}
+.lv-ev.me{border-left-color:var(--teal);}
+.lv-ev.miss{color:var(--text-dim);}
+.lv-ev small{color:var(--text-dim);font-size:11px;}
+.lv-clock,.lv-sc{font:700 11px/1 'IBM Plex Mono',monospace;color:var(--text-dim);}
+@keyframes lvIn{from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:none;}}
+.lv-recap{margin-top:12px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--panel2);font-size:12px;line-height:1.5;}
+.lv-recap-title{font:700 11px/1 'IBM Plex Mono',monospace;letter-spacing:1.5px;color:var(--text-dim);text-transform:uppercase;margin-bottom:6px;}
+.lv-recap-row{display:flex;flex-wrap:wrap;gap:2px 6px;align-items:baseline;padding:3px 0;}
+.lv-recap-row span{font:700 10px/1.2 'IBM Plex Mono',monospace;letter-spacing:1px;color:var(--text-dim);min-width:74px;text-transform:uppercase;}
+.lv-recap-row i{font-style:normal;color:var(--text-dim);}
+.lv-recap-row b{margin-left:auto;font-weight:700;}
+.lv-recap-row b.ok{color:var(--teal);}
+.lv-recap-row b.bad{color:var(--err);}
+.lv-recap-note{color:var(--text-dim);padding-top:3px;}
+.lv-their{display:flex;flex-wrap:wrap;gap:6px;}
+.lv-their span{padding:5px 8px;border:1px solid var(--line);border-radius:8px;font-size:11px;color:var(--text-dim);}
+.lv-their span b{color:var(--text);font-weight:600;}
+.lv-table{width:100%;border-collapse:collapse;font:600 12px/1.2 'IBM Plex Mono',monospace;margin-top:14px;}
+.lv-table th,.lv-table td{padding:7px 6px;border-bottom:1px solid var(--line);text-align:center;color:var(--text-dim);}
+.lv-table th:first-child,.lv-table td:first-child{text-align:left;color:var(--text);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.lv-table td:last-child{color:var(--text);font-weight:700;}
+.lv-mvp{margin-top:14px;padding:12px;border:1px solid var(--gold);border-radius:12px;text-align:center;background:linear-gradient(135deg,rgba(228,183,62,.10),transparent 70%),var(--panel2);}
+.lv-mvp-kicker{font:800 11px/1 'IBM Plex Mono',monospace;letter-spacing:1.5px;color:var(--gold);}
+.lv-mvp-name{font-family:'Anton','Impact','HelveticaNeue-CondensedBlack','Roboto Condensed','Arial Narrow',sans-serif;font-size:22px;letter-spacing:1px;margin:6px 0 2px;}
+.lv-mvp-line{font-size:12px;color:var(--text-dim);}
+.lv-leave{display:block;margin:18px auto 0;background:none;border:none;color:var(--text-dim);font:700 11px/1 'IBM Plex Mono',monospace;letter-spacing:1.5px;text-decoration:underline;cursor:pointer;padding:8px;}
+@media(max-width:420px){.lv-score{font-size:38px;}.lv-name{font-size:17px;}.lv-board{padding:12px 10px;gap:6px;}}
 .photo-credits{margin-top:10px;font-size:11px;color:var(--text-dim);text-align:left;}
 .photo-credits summary{cursor:pointer;text-align:center;}
 .photo-credits ul{margin:8px 0 0;padding-left:18px;line-height:1.5;}
@@ -1388,6 +1452,9 @@ html:has(#screen-draft:not(.hidden))::after{opacity:.07;}
 
   <%!-- DUEL SCREEN (incoming challenge / finished series) -->
   <div id="screen-duel" class="panel hidden"><div id="duelScreenBody"></div></div>
+
+  <%!-- LIVE MATCH SCREEN (room, match, final) -->
+  <div id="screen-live" class="panel hidden"><div id="liveScreenBody"></div></div>
 
   <%!-- TEAM SELECTION SCREEN -->
   <div id="screen-team" class="panel hidden">
@@ -1532,7 +1599,8 @@ html:has(#screen-draft:not(.hidden))::after{opacity:.07;}
         <div class="simulate-loader-text" id="simulateLoaderText">Generating the schedule…</div>
       </div>
       <button class="btn" id="simulateSeasonBtn" onclick="runSeasonSimulation()">SIMULATE SEASON</button>
-      <div class="duel-slot" style="margin-top:18px;text-align:left;"></div>
+      <div class="live-slot" style="margin-top:18px;text-align:left;"></div>
+      <div class="duel-slot" style="text-align:left;"></div>
     </div>
   </div>
 
@@ -1602,6 +1670,7 @@ html:has(#screen-draft:not(.hidden))::after{opacity:.07;}
       <div class="stat-box"><div class="num" id="finalBenchDepth">--</div><div class="lbl">Bench Depth</div></div>
     </div>
 
+    <div class="live-slot"></div>
     <div class="duel-slot"></div>
 
     <div id="payrollPanel" style="margin-top:16px;"></div>
@@ -3214,7 +3283,7 @@ function duelShareLink(text){
 }
 function duelTelegramLink(webLink){
   if(!DUEL_TG_APP_LINK) return webLink;
-  const m = /#(duelres|duel)=(.+)$/.exec(webLink);
+  const m = /#(duelres|duel|live)=(.+)$/.exec(webLink);
   return m ? DUEL_TG_APP_LINK + '?startapp=' + m[1] + m[2] : webLink;
 }
 function duelShareTelegram(text){
@@ -3276,7 +3345,7 @@ function duelSlotHtml(){
   }
   return `<div class="duel-banner"><div><div class="duel-banner-kicker">⚔ DUEL BY LINK</div><div class="duel-banner-title">Challenge a friend</div><div class="duel-banner-copy">Same packs for both of you, then a best-of-7 between the two rosters.</div></div><button class="btn ghost" onclick="openDuelChallenge()">CREATE CHALLENGE</button></div>`;
 }
-function renderDuelSlots(){ document.querySelectorAll('.duel-slot').forEach(el=>{ el.innerHTML = duelSlotHtml(); }); }
+function renderDuelSlots(){ document.querySelectorAll('.duel-slot').forEach(el=>{ el.innerHTML = duelSlotHtml(); }); renderLiveSlots(); }
 
 function showDuelIntro(){
   const d = pendingDuel, el = document.getElementById('duelScreenBody'); if(!d || !el) return;
@@ -3370,6 +3439,997 @@ function readDuelFromLocation(){
   return true;
 }
 
+/* ================= LIVE MATCH =================
+   Two players in one room play a single game with the rosters they built: four quarters, then a
+   possession-by-possession finish. Before every period both sides pick offense, defense and
+   substitutions against a timer. One side (the "arbiter", normally the room's creator) resolves each
+   period and sends the whole match state; the other side only sends its picks. If a player drops,
+   the remaining one becomes the arbiter and an auto-coach repeats the absent side's last picks.
+   Messages travel through a Supabase Realtime broadcast channel; without the two constants below
+   the room works only between two tabs of one browser (BroadcastChannel) — that is the test mode.
+   The texts of this module live in LIVE_TXT (English and Russian side by side), not in #ddRu. */
+const LIVE_SUPABASE_URL = '';   // e.g. 'https://abcdefgh.supabase.co'
+const LIVE_SUPABASE_KEY = '';   // the project's public key (anon / publishable)
+const LIVE_PROTO = 1;
+const LIVE_PICK_SECONDS = {q:25, clutch:12};
+const LIVE_GRACE = 5;           // seconds the arbiter waits for a late pick
+const LIVE_TAKEOVER = 15;       // seconds without the arbiter before the other side takes over
+const LIVE_OFFLINE = 10;        // seconds without a ping before the opponent is shown as offline
+const LIVE_POSS = 24;           // possessions per team in a quarter
+const LIVE_TIMEOUTS = 2;
+const LIVE_OFF = ['bal','star','paint','three'], LIVE_DEF = ['bal','double','wall','line'];
+const LIVE_COFF = ['iso','three','drive'], LIVE_CDEF = ['double','line','wall'];
+const LIVE_COUNTER = {star:'double', paint:'wall', three:'line', iso:'double', drive:'wall'};
+const LIVE_CLUTCH_CLOCK = [90, 55, 20];
+let live = null;            // the room I am in
+let livePendingRoom = '';
+
+const LIVE_TXT = {
+en:{
+  kicker:'🔴 LIVE MATCH', room:r=>`ROOM ${r}`, you:'YOU',
+  botKicker:'🏀 PLAY NOW · VS CPU', botSlotTitle:'Play one game right now', botSlotCopy:'Your team against a computer-run roster: four quarters and a clutch finish. You call offense, defense and substitutions.', botSlotBtn:'PLAY NOW',
+  botLobbyCopy:'One game, four quarters and a clutch finish. Before every quarter you choose offense, defense and substitutions — the computer coach does the same for the other team.',
+  botName:'CPU', diffLabel:'Opponent strength', diff_easy:'Weaker', diff_even:'Even', diff_hard:'Stronger', newOpp:'ANOTHER OPPONENT', botStart:'TIP-OFF', friendBtn:'PLAY A FRIEND',
+  slotTitle:'Play a friend live', slotCopy:'One game, four quarters. You both call offense, defense and substitutions in real time.', slotBtn:'CREATE ROOM',
+  slotOpen:r=>`Room ${r} is open`, slotOpenCopy:'Your friend joins by the link. Come back to the room to play.', slotOpenBtn:'BACK TO THE ROOM',
+  slotJoin:'Your team is ready', slotJoinCopy:'Go back to the room — your friend is waiting for the live match.', slotJoinBtn:'JOIN THE MATCH',
+  needTeam:'Finish a draft first — the live match is played with your roster.',
+  lobbyTitle:'PLAY NOW', lobbyCopy:'One game, four quarters and a clutch finish. Before every quarter you both choose offense, defense and substitutions. The match starts when both of you are ready.',
+  netConnecting:'CONNECTING…', netOpen:'ONLINE', netClosed:'RECONNECTING…', netError:'NO CONNECTION',
+  testMode:'TEST MODE · no server is set up yet, so the room works only between two tabs of this browser',
+  yourName:'Your name', sendLink:'Send this link to a friend', copyBtn:'COPY LINK', tgBtn:'TELEGRAM', shareBtn:'SHARE…',
+  shareText:n=>`${n} invites you to a live DRAFT DAY match. Bring your team!`,
+  waitFriend:'Waiting for your friend to open the link…', waitHost:'Looking for the room’s host…', drafting:n=>`${n} is drafting a team…`,
+  noTeamTitle:'YOU NEED A TEAM', noTeamCopy:'The match is played with a roster you drafted. Draft one now — it takes a few minutes and the room stays open.', draftBtn:'DRAFT A TEAM',
+  badVersion:'Your friend has a different version of the game. Both of you should reload the page.',
+  full:'This room already has two players.',
+  ready:'READY', unready:'NOT READY YET', chipReady:'READY', chipWait:'NOT READY', leave:'LEAVE THE ROOM', leaveMatch:'LEAVE THE MATCH', leaveSure:'TAP AGAIN TO LEAVE',
+  offline:n=>`${n} is offline — the auto-coach repeats their last choices`, left:n=>`${n} left — the auto-coach finishes the match for them`,
+  qLabel:q=>`Q${q}`, ot:'OT', finalLabel:'FINAL',
+  qTitle:q=>`QUARTER ${q}`, qSub:'Choose before the timer runs out',
+  clutchTitle:t=>`CLUTCH · ${t} LEFT`, otTitle:'OVERTIME', clutchSub:'One possession each. Guess what they will run.',
+  offense:'YOUR OFFENSE', defense:'YOUR DEFENSE', yourPoss:'YOUR POSSESSION', theirPoss:'THEIR POSSESSION',
+  o_bal:'Balanced', o_bal_d:'No weak spot. A small edge if their defense gambles',
+  o_star:'Feed the Star', o_star_d:'Everything through your best player. He tires faster',
+  o_paint:'Attack the Paint', o_paint_d:'Drives and post-ups, fewer threes',
+  o_three:'Rain Threes', o_three_d:'More threes — big swings both ways',
+  d_bal:'Balanced', d_bal_d:'Guard everything honestly, no gamble',
+  d_double:'Double the Star', d_double_d:'Stops “Feed the Star”',
+  d_wall:'Protect the Paint', d_wall_d:'Stops “Attack the Paint”',
+  d_line:'Guard the Line', d_line_d:'Stops “Rain Threes”',
+  co_iso:'Star Isolation', co_iso_d:'2 points · your best player one-on-one',
+  co_three:'Three-Pointer', co_three_d:'3 points · harder to make',
+  co_drive:'Drive to the Rim', co_drive_d:'2 points · can draw a foul',
+  cd_double:'Double the Star', cd_double_d:'Stops the isolation',
+  cd_line:'Guard the Line', cd_line_d:'Stops the three',
+  cd_wall:'Protect the Paint', cd_wall_d:'Stops the drive',
+  lineup:'LINEUP · REST A TIRED STARTER', sub:'Sub', cancel:'Cancel', whoIn:n=>`Who comes in for ${n}?`, noBench:'No free bench players.',
+  oop:'out of position (−3)', fat:'fatigue', forP:n=>`for ${n}`, outTag:'🚑 OUT', hurtTag:'🚑 plays hurt',
+  timeout:n=>`Timeout · ${n} left`, timeoutDesc:'Rests your five and blunts their offense this quarter',
+  their:'THEIR FIVE', lock:'LOCK IN', locked:'LOCKED IN ✓',
+  waitFor:n=>`Waiting for ${n}…`, peerLocked:n=>`${n} is ready`, secs:n=>`${n} s`,
+  recapQ:(q,a,b)=>`Quarter ${q} · ${a}–${b}`, recapC:'Last possessions', recapYou:'You', vs:'vs',
+  rRead:'defense read it', rOpen:'defense guessed wrong', rEven:'no gamble',
+  nRun:(n,name)=>`${name} went on a ${n}–0 run`, nInj:p=>`🚑 ${p} is injured and out for the game`, nTo:name=>`${name} used a timeout`,
+  f3:'hits a three', f2:'scores', fm3:'misses the three', fm2:'misses', fft:n=>`${n} of 2 free throws`, fwin:'wins it at the line',
+  finalWin:'YOU WIN', finalLose:n=>`${n} WINS`, mvp:'MATCH MVP', statLine:(p,r,a)=>`${p} PTS · ${r} REB · ${a} AST`, total:'T',
+  top:'TOP PERFORMERS', h2h:(n,w,l)=>`Your record against ${n}: ${w}–${l}`,
+  rematch:'REMATCH', rematchCancel:'CANCEL REMATCH', rematchAsk:n=>`${n} wants a rematch`, rematchWait:n=>`Waiting for ${n} to accept the rematch…`, backTeam:'BACK TO MY TEAM'
+},
+ru:{
+  kicker:'🔴 ЖИВОЙ МАТЧ', room:r=>`КОМНАТА ${r}`, you:'ТЫ',
+  botKicker:'🏀 PLAY NOW · ПРОТИВ КОМПЬЮТЕРА', botSlotTitle:'Сыграй один матч прямо сейчас', botSlotCopy:'Твоя команда против состава под управлением компьютера: четыре четверти и концовка по владениям. Ты выбираешь нападение, защиту и замены.', botSlotBtn:'ИГРАТЬ',
+  botLobbyCopy:'Один матч, четыре четверти и концовка по владениям. Перед каждой четвертью ты выбираешь нападение, защиту и замены — компьютерный тренер делает то же самое за соперника.',
+  botName:'CPU', diffLabel:'Сила соперника', diff_easy:'Слабее', diff_even:'Равный', diff_hard:'Сильнее', newOpp:'ДРУГОЙ СОПЕРНИК', botStart:'НАЧАТЬ МАТЧ', friendBtn:'ИГРАТЬ С ДРУГОМ',
+  slotTitle:'Сыграй с другом вживую', slotCopy:'Один матч, четыре четверти. Оба в реальном времени выбираете нападение, защиту и замены.', slotBtn:'СОЗДАТЬ КОМНАТУ',
+  slotOpen:r=>`Комната ${r} открыта`, slotOpenCopy:'Друг заходит по ссылке. Вернись в комнату, чтобы сыграть.', slotOpenBtn:'ВЕРНУТЬСЯ В КОМНАТУ',
+  slotJoin:'Команда готова', slotJoinCopy:'Возвращайся в комнату — друг ждёт живой матч.', slotJoinBtn:'ВОЙТИ В МАТЧ',
+  needTeam:'Сначала закончи драфт — живой матч играется твоим составом.',
+  lobbyTitle:'PLAY NOW', lobbyCopy:'Один матч, четыре четверти и концовка по владениям. Перед каждой четвертью оба выбираете нападение, защиту и замены. Матч начнётся, когда оба будут готовы.',
+  netConnecting:'ПОДКЛЮЧЕНИЕ…', netOpen:'В СЕТИ', netClosed:'ПЕРЕПОДКЛЮЧЕНИЕ…', netError:'НЕТ СВЯЗИ',
+  testMode:'ТЕСТОВЫЙ РЕЖИМ · сервер ещё не подключён, комната работает только между двумя вкладками этого браузера',
+  yourName:'Твоё имя', sendLink:'Отправь эту ссылку другу', copyBtn:'СКОПИРОВАТЬ', tgBtn:'TELEGRAM', shareBtn:'ПОДЕЛИТЬСЯ…',
+  shareText:n=>`${n} зовёт тебя на живой матч в DRAFT DAY. Приходи со своей командой!`,
+  waitFriend:'Ждём, пока друг откроет ссылку…', waitHost:'Ищем хозяина комнаты…', drafting:n=>`${n} собирает команду…`,
+  noTeamTitle:'НУЖНА КОМАНДА', noTeamCopy:'Матч играется составом, который ты собрал на драфте. Собери его сейчас — это несколько минут, комната останется открытой.', draftBtn:'СОБРАТЬ КОМАНДУ',
+  badVersion:'У друга другая версия игры. Обоим нужно обновить страницу.',
+  full:'В этой комнате уже два игрока.',
+  ready:'ГОТОВ', unready:'ЕЩЁ НЕ ГОТОВ', chipReady:'ГОТОВ', chipWait:'НЕ ГОТОВ', leave:'ВЫЙТИ ИЗ КОМНАТЫ', leaveMatch:'ВЫЙТИ ИЗ МАТЧА', leaveSure:'НАЖМИ ЕЩЁ РАЗ, ЧТОБЫ ВЫЙТИ',
+  offline:n=>`${n} не в сети — автотренер повторяет его последние решения`, left:n=>`${n} вышел — матч за него доигрывает автотренер`,
+  qLabel:q=>`Q${q}`, ot:'ОТ', finalLabel:'ФИНАЛ',
+  qTitle:q=>`ЧЕТВЕРТЬ ${q}`, qSub:'Выбери, пока идёт таймер',
+  clutchTitle:t=>`КОНЦОВКА · ОСТАЛОСЬ ${t}`, otTitle:'ОВЕРТАЙМ', clutchSub:'По одному владению. Угадай, что сыграет соперник.',
+  offense:'ТВОЁ НАПАДЕНИЕ', defense:'ТВОЯ ЗАЩИТА', yourPoss:'ТВОЁ ВЛАДЕНИЕ', theirPoss:'ВЛАДЕНИЕ СОПЕРНИКА',
+  o_bal:'Сбалансированно', o_bal_d:'Без слабых мест. Небольшой плюс, если защита соперника рискует',
+  o_star:'Игра на звезду', o_star_d:'Всё через лучшего игрока. Он устаёт быстрее',
+  o_paint:'Атака краски', o_paint_d:'Проходы и игра спиной, меньше трёшек',
+  o_three:'Трёхочковые', o_three_d:'Больше трёшек — большой разброс в обе стороны',
+  d_bal:'Сбалансированно', d_bal_d:'Честная защита по всей площадке, без риска',
+  d_double:'Двойная опека', d_double_d:'Останавливает «Игру на звезду»',
+  d_wall:'Закрыть краску', d_wall_d:'Останавливает «Атаку краски»',
+  d_line:'Закрыть дугу', d_line_d:'Останавливает «Трёхочковые»',
+  co_iso:'Изоляция звезды', co_iso_d:'2 очка · лучший игрок один на один',
+  co_three:'Трёхочковый', co_three_d:'3 очка · попасть труднее',
+  co_drive:'Проход под кольцо', co_drive_d:'2 очка · можно заработать фол',
+  cd_double:'Двойная опека', cd_double_d:'Останавливает изоляцию',
+  cd_line:'Закрыть дугу', cd_line_d:'Останавливает трёхочковый',
+  cd_wall:'Закрыть краску', cd_wall_d:'Останавливает проход',
+  lineup:'СОСТАВ · ДАЙ ОТДОХНУТЬ УСТАВШЕМУ', sub:'Замена', cancel:'Отмена', whoIn:n=>`Кто выйдет вместо ${n}?`, noBench:'Свободных запасных нет.',
+  oop:'не своя позиция (−3)', fat:'усталость', forP:n=>`вместо ${n}`, outTag:'🚑 ВЫБЫЛ', hurtTag:'🚑 играет с травмой',
+  timeout:n=>`Тайм-аут · осталось ${n}`, timeoutDesc:'Даёт отдых пятёрке и сбивает нападение соперника в этой четверти',
+  their:'ПЯТЁРКА СОПЕРНИКА', lock:'ПОДТВЕРДИТЬ', locked:'ПОДТВЕРЖДЕНО ✓',
+  waitFor:n=>`Ждём ${n}…`, peerLocked:n=>`${n} готов`, secs:n=>`${n} с`,
+  recapQ:(q,a,b)=>`Четверть ${q} · ${a}–${b}`, recapC:'Последние владения', recapYou:'Ты', vs:'против',
+  rRead:'защита угадала', rOpen:'защита не угадала', rEven:'без риска',
+  nRun:(n,name)=>`${name}: рывок ${n}–0`, nInj:p=>`🚑 ${p} травмирован и выбыл до конца матча`, nTo:name=>`${name} взял тайм-аут`,
+  f3:'попадает трёшку', f2:'забивает', fm3:'мажет трёшку', fm2:'мажет', fft:n=>`${n} из 2 штрафных`, fwin:'решает матч со штрафной',
+  finalWin:'ТЫ ПОБЕДИЛ', finalLose:n=>`ПОБЕДИЛ ${n}`, mvp:'MVP МАТЧА', statLine:(p,r,a)=>`${p} очк. · ${r} подб. · ${a} перед.`, total:'ИТ',
+  top:'ЛУЧШИЕ ИГРОКИ', h2h:(n,w,l)=>`Твой счёт против ${n}: ${w}–${l}`,
+  rematch:'РЕВАНШ', rematchCancel:'ОТМЕНИТЬ РЕВАНШ', rematchAsk:n=>`${n} хочет реванш`, rematchWait:n=>`Ждём, пока ${n} согласится на реванш…`, backTeam:'К МОЕЙ КОМАНДЕ'
+}};
+function LT(key, ...args){
+  const ru = window.DD_LANG==='ru' ? LIVE_TXT.ru[key] : undefined;
+  const t = ru!==undefined ? ru : LIVE_TXT.en[key];
+  return typeof t==='function' ? t(...args) : (t===undefined ? key : t);
+}
+
+/* ----- transport ----- */
+function liveTransport(room, onMessage, onStatus){
+  const topic = 'ddlive-' + room;
+  if(!LIVE_SUPABASE_URL || !LIVE_SUPABASE_KEY){
+    let bc = null;
+    try{ bc = new BroadcastChannel(topic); }catch(e){}
+    if(!bc){ setTimeout(()=>onStatus('error'), 0); return {send(){}, close(){}, local:true}; }
+    bc.onmessage = e => onMessage(e.data);
+    setTimeout(()=>onStatus('open'), 0);
+    return {send(m){ try{ bc.postMessage(m); }catch(e){} }, close(){ try{ bc.close(); }catch(e){} }, local:true};
+  }
+  // Supabase Realtime speaks the Phoenix channel protocol over a WebSocket; only "broadcast" is used.
+  const full = 'realtime:' + topic;
+  const url = LIVE_SUPABASE_URL.replace(/^http/, 'ws').replace(/\/+$/, '') + '/realtime/v1/websocket?apikey=' + encodeURIComponent(LIVE_SUPABASE_KEY) + '&vsn=1.0.0';
+  let ws = null, ref = 0, joinRef = '', joined = false, closed = false, beat = null, retry = 0;
+  const raw = obj => { try{ ws.send(JSON.stringify(obj)); }catch(e){} };
+  function open(){
+    if(closed) return;
+    onStatus(retry ? 'closed' : 'connecting');
+    try{ ws = new WebSocket(url); }catch(e){ onStatus('error'); return; }
+    ws.onopen = () => {
+      joinRef = String(++ref);
+      raw({topic:full, event:'phx_join', payload:{config:{broadcast:{ack:false, self:false}, presence:{key:''}, postgres_changes:[], private:false}}, ref:joinRef, join_ref:joinRef});
+      beat = setInterval(()=>raw({topic:'phoenix', event:'heartbeat', payload:{}, ref:String(++ref)}), 25000);
+    };
+    ws.onmessage = e => {
+      let m; try{ m = JSON.parse(e.data); }catch(err){ return; }
+      if(!m || m.topic!==full) return;
+      if(m.event==='phx_reply' && m.ref===joinRef){
+        if(m.payload && m.payload.status==='ok'){ joined = true; retry = 0; onStatus('open'); }
+        else onStatus('error');
+      } else if(m.event==='broadcast' && m.payload && m.payload.event==='m') onMessage(m.payload.payload);
+      else if(m.event==='phx_error' || m.event==='phx_close'){ try{ ws.close(); }catch(err){} }
+    };
+    ws.onclose = () => {
+      clearInterval(beat); joined = false;
+      if(closed) return;
+      onStatus('closed');
+      setTimeout(open, Math.min(8000, 800 * ++retry));
+    };
+    ws.onerror = () => {};
+  }
+  open();
+  return {
+    send(msg){ if(joined && ws && ws.readyState===1) raw({topic:full, event:'broadcast', payload:{type:'broadcast', event:'m', payload:msg}, ref:String(++ref), join_ref:joinRef}); },
+    close(){ closed = true; clearInterval(beat); try{ ws.close(); }catch(e){} },
+    local:false
+  };
+}
+
+/* ----- rosters ----- */
+function liveSide(){ return live.role==='host' ? 0 : 1; }
+function liveSpeed(){ return Number(window.LIVE_SPEED) || 1; }
+function liveMs(seconds){ return seconds * 1000 / liveSpeed(); }
+function liveRosterOf(code){
+  if(!code) return null;
+  if(!liveRosterOf.cache) liveRosterOf.cache = new Map();
+  const cache = liveRosterOf.cache;
+  if(!cache.has(code)){
+    const parsed = decodeDuelRoster(code);
+    cache.set(code, parsed && parsed.roster ? {roster:parsed.roster, info:duelRosterPower(parsed.roster)} : {error: parsed && parsed.error==='version' ? 'version' : 'broken'});
+  }
+  return cache.get(code);
+}
+// The roster I bring to a live match: the one on screen, otherwise the one in the saved run.
+function liveMyRosterCode(){
+  const full = (sq, bn) => !!sq && POSITIONS.every(pos=>sq[pos]) && Array.isArray(bn) && bn.filter(Boolean).length>0;
+  if(runPhase && runPhase!=='draft' && selectedTeam && full(squad, bench)) return encodeDuelRoster(duelPlayerName());
+  const s = savedRun;
+  if(runPhase || !s || s.phase==='draft' || !full(s.squad, s.bench)) return '';
+  const keep = {squad, bench, coach, captain, selectedTeam, gameMode, draftSeed};
+  try{
+    squad = s.squad; bench = s.bench.filter(Boolean); coach = s.coach||null; captain = s.captain||null;
+    selectedTeam = NBA_TEAMS_2026.find(t=>t.id===s.teamId)||null; gameMode = s.mode==='current' ? 'current' : 'alltime'; draftSeed = s.seed||'';
+    return encodeDuelRoster(duelPlayerName());
+  } finally {
+    squad = keep.squad; bench = keep.bench; coach = keep.coach; captain = keep.captain;
+    selectedTeam = keep.selectedTeam; gameMode = keep.gameMode; draftSeed = keep.draftSeed;
+  }
+}
+function liveRefreshMe(){
+  if(!live || (live.M && live.M.stage!=='final')) return;
+  const code = liveMyRosterCode();
+  if(code!==live.me.code){ live.me.code = code; live.ready = false; }
+}
+
+/* ----- a match against the computer -----
+   The same match with no network: the "peer" is a generated roster and an auto-coach that answers
+   every period at once. Strength is set relative to my own roster. */
+const LIVE_BOT_DIFF = {easy:-4, even:0, hard:3};
+function liveBotDiff(){
+  let d = '';
+  try{ d = localStorage.getItem('dd_live_diff') || ''; }catch(e){}
+  return LIVE_BOT_DIFF[d]!==undefined ? d : 'even';
+}
+function liveBotRosterCode(diff){
+  const mine = liveRosterOf(live.me.code).roster, delta = LIVE_BOT_DIFF[diff] || 0, idx = duelNameIndex();
+  const used = new Set([...mine.starters, ...mine.bench].map(p=>p.n));
+  const avg = list => list.reduce((t,p)=>t+p.r, 0) / Math.max(1, list.length);
+  const pick = (pos, target) => {
+    const list = (POOL[pos]||[]).filter(p=>!used.has(p.n) && (mine.mode!=='current' || !p.leg) && idx.names.indexOf(p.n)>=0)
+      .map(p=>({p, d:Math.abs(p.r - target) + Math.random()*2.5})).sort((a,b)=>a.d-b.d);
+    if(!list.length) return null;
+    used.add(list[0].p.n);
+    return {...list[0].p, pos};
+  };
+  const sAvg = avg(mine.starters), bAvg = avg(mine.bench);
+  const sq = {}, bn = [];
+  POSITIONS.forEach(pos=>{ sq[pos] = pick(pos, Math.min(99, sAvg + delta + (Math.random()*6 - 3))); });
+  mine.bench.forEach((b,i)=>{ const p = pick(POSITIONS[i % 5], Math.min(97, bAvg + delta + (Math.random()*6 - 3))); if(p) bn.push(p); });
+  if(POSITIONS.some(pos=>!sq[pos])) return '';
+  const teams = NBA_TEAMS_2026.filter(t=>t.id!==mine.team.id), best = POSITIONS.map(pos=>sq[pos]).reduce((a,b)=>b.r>a.r ? b : a);
+  const keep = {squad, bench, coach, captain, selectedTeam, gameMode, draftSeed};
+  let oldName = null;
+  try{ oldName = localStorage.getItem('dd_duel_name'); }catch(e){}
+  try{
+    squad = sq; bench = bn; coach = COACH_POOL[Math.floor(Math.random()*COACH_POOL.length)]; captain = best;
+    selectedTeam = teams[Math.floor(Math.random()*teams.length)]; gameMode = mine.mode; draftSeed = newDraftSeed();
+    return encodeDuelRoster(LT('botName'));
+  } finally {
+    squad = keep.squad; bench = keep.bench; coach = keep.coach; captain = keep.captain;
+    selectedTeam = keep.selectedTeam; gameMode = keep.gameMode; draftSeed = keep.draftSeed;
+    try{ if(oldName===null) localStorage.removeItem('dd_duel_name'); else localStorage.setItem('dd_duel_name', oldName); }catch(e){}
+  }
+}
+function liveBotNewOpponent(diff){
+  if(!live || !live.bot) return;
+  if(diff){ try{ localStorage.setItem('dd_live_diff', diff); }catch(e){} }
+  liveRefreshMe();
+  // Coach and chemistry move a roster's power a lot, so several rosters are built and the one closest to the wanted gap is kept.
+  let code = '';
+  if(live.me.code){
+    const diff = liveBotDiff(), want = liveRosterOf(live.me.code).info.power + LIVE_BOT_DIFF[diff];
+    let gap = Infinity;
+    for(let i=0;i<14;i++){
+      const c = liveBotRosterCode(diff), r = c ? liveRosterOf(c) : null;
+      if(r && r.roster && Math.abs(r.info.power - want) < gap){ gap = Math.abs(r.info.power - want); code = c; }
+    }
+  }
+  live.M = null; live.view = 'lobby'; live.ready = false; live.recorded = 0; live.myPick = null;
+  clearTimeout(live.playTimer);
+  live.peer = code ? {cid:'bot', bot:true, name:LT('botName'), code, ready:true, seen:Date.now() + 1e12, n:0, round:-1, pick:null, left:false} : null;
+  renderLive();
+}
+function liveBotStart(){
+  if(live && live.bot) return liveOpenScreen();
+  if(!liveMyRosterCode()){ showCapToast(LT('needTeam'), LT('botKicker')); return; }
+  if(live) liveLeave(true);
+  live = {room:'cpu', role:'host', bot:true, cid:'me', status:'open', view:'lobby', me:{code:''}, peer:null, ready:false, full:false,
+    M:null, myPick:null, sel:null, subPick:null, deadline:0, back:navCurrent, lastPing:0, lastResend:0, sig:'', leaveArmed:false, recorded:0, playTimer:null,
+    net:{send(){}, close(){}, local:true}};
+  live.timer = setInterval(liveTick, 500);
+  liveBotNewOpponent();
+  showScreen('screen-live');
+  renderLive();
+}
+// The computer coach: mixes its offense, tries to read mine from the last period, rests tired starters.
+function liveBotPick(M, s){
+  const o = 1-s, rnd = a => a[Math.floor(Math.random()*a.length)];
+  if(M.kind==='clutch'){
+    const star = liveCourt(M, s).reduce((a,b)=>b.eff>a.eff ? b : a), last = M.prev[o].clutch;
+    return {r:M.round, n:M.n, off:Math.random() < (star.eff>=93 ? .5 : .3) ? 'iso' : rnd(['three','drive']),
+      def:last && Math.random()<.4 ? LIVE_COUNTER[last.off] : rnd(LIVE_CDEF)};
+  }
+  const last = M.prev[o].q, mine = M.prev[s].q, L = M.last;
+  let off = rnd(LIVE_OFF);
+  if(mine && L && L.kind==='q' && LIVE_COUNTER[mine.off]===L.picks[o].def && off===mine.off) off = rnd(LIVE_OFF.filter(x=>x!==mine.off));
+  const def = last && last.off!=='bal' && Math.random()<.4 ? LIVE_COUNTER[last.off] : rnd(LIVE_DEF);
+  const r = liveRosterOf(M.codes[s]).roster, subs = {}, taken = new Set();
+  if(M.q===2 || M.q===3) r.starters.forEach(st=>{
+    if((M.fat[s][st.n]||0) < 40 || M.out[s].includes(st.n) || taken.size>=2) return;
+    const b = r.bench.filter(x=>!taken.has(x.n) && !M.out[s].includes(x.n) && (M.fat[s][x.n]||0) < 30).sort((x,y)=>y.r-x.r)[0];
+    if(b && st.r - b.r <= 6){ subs[st.n] = b.n; taken.add(b.n); }
+  });
+  return {r:M.round, n:M.n, off, def, subs, to:M.to[s]>0 && M.q>=3 && M.score[o] - M.score[s] >= 8};
+}
+
+/* ----- entering and leaving a room ----- */
+function liveNewRoomCode(){
+  const abc = 'abcdefghjkmnpqrstuvwxyz23456789';
+  let s = ''; for(let i=0;i<6;i++) s += abc[Math.floor(Math.random()*abc.length)];
+  return s;
+}
+function liveCreate(){
+  if(live) return liveOpenScreen();
+  if(!liveMyRosterCode()){ showCapToast(LT('needTeam'), LT('kicker')); return; }
+  const room = liveNewRoomCode();
+  try{ sessionStorage.setItem('dd_live_host', room); }catch(e){}
+  try{ history.replaceState(null, '', location.pathname + location.search + '#live=' + room); }catch(e){}
+  liveEnter(room, 'host');
+}
+function liveEnter(room, role){
+  if(live) liveLeave(true);
+  // The id survives a page reload, so the other side recognises me and sends the match state again.
+  let cid = '';
+  try{ cid = sessionStorage.getItem('dd_live_cid_' + room) || ''; }catch(e){}
+  if(!cid){ cid = newDraftSeed() + newDraftSeed(); try{ sessionStorage.setItem('dd_live_cid_' + room, cid); }catch(e){} }
+  const me = {room, role, cid, status:'connecting', view:'lobby', me:{code:''}, peer:null, ready:false, full:false,
+    M:null, myPick:null, sel:null, subPick:null, deadline:0, back:'screen-mode', lastPing:0, lastResend:0, sig:'', leaveArmed:false, recorded:0, playTimer:null};
+  live = me;
+  me.net = liveTransport(room, m => { if(live===me) liveOnMessage(m); }, st => {
+    if(live!==me) return;
+    me.status = st;
+    if(st==='open') livePing();
+    liveRenderIfChanged();
+  });
+  me.timer = setInterval(liveTick, 500);
+  livePendingRoom = '';
+  liveOpenScreen();
+}
+function liveOpenScreen(){
+  if(!live) return;
+  if(navCurrent!=='screen-live') live.back = navCurrent;
+  if(!live.bot) liveRefreshMe();
+  showScreen('screen-live');
+  renderLive();
+  livePing();
+}
+function liveGoDraft(){
+  if(!live) return;
+  renderModeScreen();
+  showScreen('screen-mode');
+}
+function liveLeaveClick(){
+  if(!live) return;
+  if(live.M && live.M.stage!=='final' && !live.leaveArmed){ live.leaveArmed = true; renderLive(); return; }
+  liveLeave(false);
+}
+function liveLeave(silent){
+  if(!live) return;
+  const me = live;
+  try{ me.net.send({t:'bye', v:LIVE_PROTO, cid:me.cid}); }catch(e){}
+  clearInterval(me.timer); clearTimeout(me.playTimer);
+  setTimeout(()=>{ try{ me.net.close(); }catch(e){} }, 300);
+  live = null;
+  try{ sessionStorage.removeItem('dd_live_host'); }catch(e){}
+  try{ if(/^#live=/.test(location.hash)) history.replaceState(null, '', location.pathname + location.search); }catch(e){}
+  if(silent) return;
+  if(!me.back || me.back==='screen-mode' || me.back==='screen-duel' || me.back==='screen-live'){ renderModeScreen(); showScreen('screen-mode'); }
+  else showScreen(me.back);
+}
+// A room code in the address (#live=…) or in the Telegram start parameter (live…).
+function readLiveFromLocation(hashOnly){
+  let room = '';
+  const hash = (location.hash||'').replace(/^#/, '');
+  if(hash.startsWith('live=')) room = hash.slice(5);
+  else if(!hashOnly){
+    let sp = '';
+    try{ sp = window.Telegram.WebApp.initDataUnsafe.start_param || ''; }catch(e){}
+    if(sp.startsWith('live')) room = sp.slice(4);
+  }
+  room = room.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 12);
+  if(room.length<4) return false;
+  if(live && live.room===room){ liveOpenScreen(); return true; }
+  let host = '';
+  try{ host = sessionStorage.getItem('dd_live_host') || ''; }catch(e){}
+  liveEnter(room, host===room ? 'host' : 'guest');
+  return true;
+}
+function liveSlotHtml(){
+  const banner = (title, copy, btn, action, ghost) => `<div class="duel-banner"><div><div class="duel-banner-kicker">${LT('kicker')}</div><div class="duel-banner-title">${title}</div><div class="duel-banner-copy">${copy}</div></div><button class="btn${ghost?' ghost':''}" onclick="${action}">${btn}</button></div>`;
+  const code = liveMyRosterCode();
+  const online = !!(LIVE_SUPABASE_URL && LIVE_SUPABASE_KEY);
+  if(live && live.bot) return code ? banner(LT('botSlotTitle'), LT('botSlotCopy'), LT('botSlotBtn'), 'liveBotStart()', false).replace(LT('kicker'), LT('botKicker')) : '';
+  if(!live && code) return banner(LT('botSlotTitle'), LT('botSlotCopy'), LT('botSlotBtn'), 'liveBotStart()', false).replace(LT('kicker'), LT('botKicker'))
+    + (online ? banner(LT('slotTitle'), LT('slotCopy'), LT('slotBtn'), 'liveCreate()', true) : '');
+  if(live){
+    if(!code) return '';
+    return live.me.code ? banner(LT('slotOpen', live.room.toUpperCase()), LT('slotOpenCopy'), LT('slotOpenBtn'), 'liveOpenScreen()', false)
+                        : banner(LT('slotJoin'), LT('slotJoinCopy'), LT('slotJoinBtn'), 'liveOpenScreen()', false);
+  }
+  return code ? banner(LT('slotTitle'), LT('slotCopy'), LT('slotBtn'), 'liveCreate()', true) : '';
+}
+function renderLiveSlots(){
+  const slots = document.querySelectorAll('.live-slot');
+  if(!slots.length) return;
+  const html = navCurrent==='screen-live' ? '' : liveSlotHtml();
+  slots.forEach(el=>{ if(el.innerHTML!==html) el.innerHTML = html; });
+}
+
+/* ----- messages ----- */
+function livePing(){
+  if(!live) return;
+  live.lastPing = Date.now();
+  const M = live.M;
+  live.net.send({t:'p', v:LIVE_PROTO, cid:live.cid, role:live.role, peer:live.peer ? live.peer.cid : '', name:duelPlayerName(),
+    code:live.me.code, ready:live.ready, n:M ? M.n : 0, round:M ? M.round : -1, pick:live.myPick});
+}
+function livePeerGone(){ return !live.peer || live.peer.left || Date.now() - live.peer.seen > 30000; }
+function livePeerOffline(){ return !!live.peer && !live.peer.left && Date.now() - live.peer.seen > LIVE_OFFLINE*1000; }
+function liveOnMessage(m){
+  if(!live || !m || m.v!==LIVE_PROTO || !m.cid || m.cid===live.cid) return;
+  const now = Date.now();
+  if(m.t==='p'){
+    if(m.role===live.role) return;                        // not my counterpart
+    if(live.peer && live.peer.cid!==m.cid){
+      if(!live.peer.left && now - live.peer.seen < LIVE_OFFLINE*1000) return;   // the seat is taken
+      live.peer = null;                                   // the old one is gone: a reloaded page comes back with a new id
+    }
+    if(!live.peer && live.role==='guest' && m.peer && m.peer!==live.cid){ live.full = true; liveRenderIfChanged(); return; }
+    live.full = false;
+    live.peer = Object.assign(live.peer || {}, {cid:m.cid, name:String(m.name||'Player').replace(/[<>&"']/g,'').slice(0,16) || 'Player',
+      code:typeof m.code==='string' ? m.code : '', ready:!!m.ready, seen:now, n:m.n|0, round:m.round|0, pick:m.pick && typeof m.pick==='object' ? m.pick : null, left:false});
+    liveSync();
+  } else if(m.t==='s'){
+    if(live.peer && m.cid===live.peer.cid && m.M){ live.peer.seen = now; liveAdopt(m.M, false); }
+  } else if(m.t==='bye'){
+    if(!live.peer || m.cid!==live.peer.cid) return;
+    if(live.M){
+      live.peer.left = true; live.peer.ready = false;
+      if(live.M.stage!=='final' && live.M.arb!==liveSide()) live.M.arb = liveSide();
+    } else live.peer = null;
+    live.ready = false;
+    liveSync();
+  }
+}
+// Runs on every ping and every tick: resend state to a side that is behind, start a match, resolve a period.
+function liveSync(){
+  if(!live) return;
+  const now = Date.now(), M = live.M, peer = live.peer, my = liveSide();
+  if(peer && M && !peer.left && now - live.lastResend > 2000 && (peer.n<M.n || (peer.n===M.n && peer.round<M.round))){
+    live.lastResend = now;
+    live.net.send({t:'s', v:LIVE_PROTO, cid:live.cid, M});
+  }
+  if(live.role==='host' && peer && !peer.left && live.ready && peer.ready && now - peer.seen < LIVE_OFFLINE*1000
+     && (!M || (M.stage==='final' && live.view==='final' && (peer.bot || (peer.n===M.n && peer.round===M.round))))){
+    const a = liveRosterOf(live.me.code), b = liveRosterOf(peer.code);
+    if(a && a.roster && b && b.roster){ liveBegin(); return; }
+  }
+  if(M && M.stage==='pick' && M.arb===my) liveTryResolve();
+  liveRenderIfChanged();
+}
+function liveBegin(){
+  const M = {n:(live.M ? live.M.n : 0) + 1, seed:newDraftSeed(), arb:0, round:0, stage:'pick', kind:'q', q:1, c:0, score:[0,0], line:[[],[]],
+    codes:[live.me.code, live.peer.code], fat:[{},{}], out:[[],[]], subs:[{},{}], to:[LIVE_TIMEOUTS, LIVE_TIMEOUTS], box:[{},{}], prev:[{},{}], last:null};
+  live.net.send({t:'s', v:LIVE_PROTO, cid:live.cid, M});
+  liveAdopt(M, true);
+}
+function liveAdopt(M, force){
+  const cur = live.M, my = liveSide();
+  if(!M || !Array.isArray(M.codes) || !Array.isArray(M.score)) return;
+  if(!force && cur){
+    const newer = M.n>cur.n || (M.n===cur.n && (M.round>cur.round || (M.round===cur.round && M.arb===0 && cur.arb===1 && my===1)));
+    if(!newer) return;
+  }
+  const a = liveRosterOf(M.codes[0]), b = liveRosterOf(M.codes[1]);
+  if(!a || !a.roster || !b || !b.roster) return;
+  live.M = M; live.myPick = null; live.ready = false; live.leaveArmed = false;
+  if(live.peer) live.peer.ready = !!live.peer.bot;
+  clearTimeout(live.playTimer);
+  if(navCurrent!=='screen-live') showScreen('screen-live');
+  if(M.last) livePlay(); else if(M.stage==='final') liveShowFinal(); else liveStartPick();
+}
+
+/* ----- the match itself (run only by the arbiter) ----- */
+function liveCourt(M, s){
+  const r = liveRosterOf(M.codes[s]).roster, out = M.out[s], subs = M.subs[s] || {}, fat = M.fat[s];
+  const taken = new Set();
+  const manual = r.starters.map(st=>{
+    const b = subs[st.n] ? r.bench.find(x=>x.n===subs[st.n]) : null;
+    if(b && !out.includes(b.n) && !taken.has(b.n)){ taken.add(b.n); return b; }
+    return null;
+  });
+  const free = r.bench.filter(b=>!taken.has(b.n) && !out.includes(b.n)).sort((x,y)=>y.r-x.r);
+  return r.starters.map((st,i)=>{
+    let p = manual[i], hurt = false;
+    if(!p){
+      if(out.includes(st.n)){ p = free.shift(); if(!p){ p = st; hurt = true; } }
+      else p = st;
+    }
+    const pos = POSITIONS[i], f = Math.round(fat[p.n] || 0), sub = p.n!==st.n;
+    const eff = p.r - (sub && p.pos && p.pos!==pos ? 3 : 0) - (hurt ? 12 : 0) - Math.max(0, f-30)*0.2;
+    return {p, st, pos, f, eff, hurt, sub, manual:!!manual[i], i};
+  });
+}
+function liveCourtPower(M, s, court){
+  return liveRosterOf(M.codes[s]).info.power + court.reduce((sum,c)=>sum + (c.eff - c.st.r), 0) * 0.82 / 5;
+}
+// Points per quarter an offense gains (or loses) against the defense it meets.
+function liveMatchup(off, def){
+  if(off==='bal') return def==='bal' ? 0 : 1;
+  if(def==='bal') return .7;
+  return LIVE_COUNTER[off]===def ? -2.2 : 1.8;
+}
+function liveBump(M, s, name, idx, n){ const b = M.box[s]; (b[name] = b[name] || [0,0,0])[idx] += n; }
+function liveSimQuarter(M, picks, rng){
+  const court = [liveCourt(M,0), liveCourt(M,1)];
+  const pw = court.map((c,s)=>liveCourtPower(M, s, c));
+  const ev = [], notes = [], pts = [0,0], run = [0,0], best = [0,0];
+  const plan = [0,1].map(s=>{
+    const off = picks[s].off, def = picks[1-s].def, c = court[s];
+    const star = c.reduce((a,b)=>b.eff>a.eff ? b : a), avg = c.reduce((t,x)=>t+x.eff, 0)/5;
+    let edge = liveMatchup(off, def);
+    if(off==='star') edge += Math.max(-1, Math.min(2, (star.eff - avg - 6)*0.2));
+    if(picks[1-s].to && edge>0) edge *= 0.4;
+    edge += Math.max(-1.5, Math.min(1.5, (M.score[1-s] - M.score[s])*0.08));   // the side that trails pushes harder
+    const s3 = {bal:.38, star:.34, paint:.24, three:.52}[off];
+    const f = (1.10 + (pw[s]-pw[1-s])*0.007 + edge/LIVE_POSS) / (.88*(s3*3*.355 + (1-s3)*2*.535));
+    const weights = c.map(x=>Math.pow(Math.max(4, x.eff-62), 2) * (x===star ? (off==='star' ? 2.4 : 1.2) * (def==='double' ? .7 : 1) : 1));
+    return {c, star, avg, s3, p3:Math.min(.6, .355*f), p2:Math.min(.8, .535*f), weights, wsum:weights.reduce((a,b)=>a+b, 0)};
+  });
+  const choose = (list, weights, total) => { let roll = rng()*total; for(let k=0;k<list.length;k++){ roll -= weights[k]; if(roll<=0) return list[k]; } return list[list.length-1]; };
+  const REB_W = [1, 1.2, 1.7, 2.5, 3.2], REB_T = REB_W.reduce((a,b)=>a+b, 0);
+  // Every second possession draws its make-or-miss roll from an even spread instead of pure chance:
+  // quarters still swing, but 6-point and 50-point quarters stop happening.
+  const half = LIVE_POSS/2, count = [0,0];
+  const spread = [0,1].map(()=>{ const a = Array.from({length:half}, (_,k)=>k); for(let k=half-1;k>0;k--){ const j = Math.floor(rng()*(k+1)); [a[k],a[j]] = [a[j],a[k]]; } return a; });
+  const first = M.q % 2;
+  for(let i=0;i<LIVE_POSS*2;i++){
+    const s = (i + first) % 2, pl = plan[s], k = count[s]++;
+    const u = k%2===0 ? (spread[s][k>>1] + rng())/half : rng();
+    const x = choose(pl.c, pl.weights, pl.wsum);
+    const three = rng() < pl.s3;
+    const pr = (three ? pl.p3 : pl.p2) * (1 + (x.eff - pl.avg)*0.006);
+    if(u >= .88*pr && rng() < .2) continue;                 // turnover
+    if(u < .88*pr){
+      const n = three ? 3 : 2;
+      let a = '';
+      if(rng() < .6){ const mate = pl.c[Math.floor(rng()*5)]; if(mate!==x){ a = mate.p.n; liveBump(M, s, a, 2, 1); } }
+      liveBump(M, s, x.p.n, 0, n); pts[s] += n; M.score[s] += n;
+      run[s] += n; run[1-s] = 0; best[s] = Math.max(best[s], run[s]);
+      ev.push([Math.max(0, 720 - Math.round((i+1)*15 - rng()*8)), s, String(n), x.p.n, a]);
+    } else {
+      const t = rng() < .74 ? 1-s : s;
+      liveBump(M, t, choose(court[t], REB_W, REB_T).p.n, 1, 1);
+    }
+  }
+  [0,1].forEach(s=>{
+    M.line[s].push(pts[s]);
+    if(best[s]>=9) notes.push({k:'run', s, n:best[s]});
+    if(picks[s].to){ M.to[s]--; notes.push({k:'to', s}); }
+    const r = liveRosterOf(M.codes[s]).roster;
+    [...r.starters, ...r.bench].forEach(p=>{
+      const f = M.fat[s][p.n] || 0, c = court[s].find(x=>x.p.n===p.n);
+      if(c){
+        // Tired legs get hurt: from 60% fatigue up there is a growing chance to be lost for the game.
+        if(f>=60 && !c.hurt && rng() < .03 + (f-60)*.002){ M.out[s].push(p.n); notes.push({k:'inj', s, p:p.n}); }
+        M.fat[s][p.n] = Math.max(0, Math.min(100, f + 20 + (picks[s].off==='star' && c===plan[s].star ? 8 : 0) - (picks[s].to ? 6 : 0)));
+      } else if(f>0) M.fat[s][p.n] = Math.max(0, f-25);
+    });
+    Object.keys(M.subs[s]).forEach(st=>{ if(M.out[s].includes(M.subs[s][st])) delete M.subs[s][st]; });
+  });
+  return {ev, notes};
+}
+function liveSimClutch(M, picks, rng){
+  const court = [liveCourt(M,0), liveCourt(M,1)], pw = court.map((c,s)=>liveCourtPower(M, s, c));
+  const ev = [], clock = M.c<=3 ? LIVE_CLUTCH_CLOCK[M.c-1] : 0;
+  (M.c%2 ? [0,1] : [1,0]).forEach((s,k)=>{
+    const off = picks[s].off, def = picks[1-s].def, c = court[s];
+    const ranked = c.slice().sort((a,b)=>b.eff-a.eff), star = ranked[0];
+    let x = star, base;
+    if(off==='iso') base = .50 + (star.eff-88)*0.012;
+    else if(off==='three'){ x = ranked[Math.floor(rng()*3)]; base = .36 + (x.eff-84)*0.004; }
+    else { x = c.slice(0,3).sort((a,b)=>b.eff-a.eff)[0]; base = .54 + (x.eff-84)*0.006; }
+    const pr = Math.max(.08, Math.min(.85, base * (LIVE_COUNTER[off]===def ? .6 : 1.12) + (pw[s]-pw[1-s])*0.008));
+    const n = off==='three' ? 3 : 2, t = Math.max(0, clock - k*12);
+    let got = 0;
+    if(rng() < pr){ got = n; ev.push([t, s, String(n), x.p.n, '']); }
+    else if(off==='drive' && rng() < .22){ got = (rng()<.78 ? 1 : 0) + (rng()<.78 ? 1 : 0); ev.push([t, s, 'f', x.p.n, got]); }
+    else ev.push([t, s, 'm', x.p.n, n]);
+    if(got){ M.score[s] += got; liveBump(M, s, x.p.n, 0, got); }
+    const li = M.c<=3 ? 3 : 4;
+    [0,1].forEach(z=>{ while(M.line[z].length<=li) M.line[z].push(0); });
+    M.line[s][li] += got;
+    M.fat[s][x.p.n] = Math.min(100, (M.fat[s][x.p.n]||0) + 3);
+  });
+  return {ev, notes:[]};
+}
+// A missing pick (the player dropped or was late) repeats that side's previous one.
+function liveCleanPick(M, s, p){
+  const prev = M.prev[s][M.kind];
+  if(M.kind==='clutch'){
+    const src = p || prev || {};
+    return {off:LIVE_COFF.includes(src.off) ? src.off : 'iso', def:LIVE_CDEF.includes(src.def) ? src.def : 'double'};
+  }
+  const src = p || {off:prev ? prev.off : 'bal', def:prev ? prev.def : 'bal', subs:M.subs[s]};
+  const r = liveRosterOf(M.codes[s]).roster, subs = {}, used = new Set();
+  Object.entries(src.subs && typeof src.subs==='object' ? src.subs : {}).forEach(([st,b])=>{
+    if(r.starters.some(x=>x.n===st) && r.bench.some(x=>x.n===b) && !used.has(b) && !M.out[s].includes(b)){ subs[st] = b; used.add(b); }
+  });
+  return {off:LIVE_OFF.includes(src.off) ? src.off : 'bal', def:LIVE_DEF.includes(src.def) ? src.def : 'bal', to:!!(p && p.to) && M.to[s]>0, subs};
+}
+function liveResolve(M0, raw){
+  const M = JSON.parse(JSON.stringify(M0));
+  const rng = mulberry32(hashStr('live|' + M.seed + '|' + M.round));
+  const picks = [0,1].map(s=>liveCleanPick(M, s, raw[s]));
+  const from = M.score.slice();
+  let out;
+  if(M.kind==='q'){
+    [0,1].forEach(s=>{ M.subs[s] = picks[s].subs; M.prev[s].q = {off:picks[s].off, def:picks[s].def}; });
+    out = liveSimQuarter(M, picks, rng);
+    if(M.q<4) M.q++;
+    else if(Math.abs(M.score[0]-M.score[1]) > 9) M.stage = 'final';   // out of reach: no clutch time
+    else { M.kind = 'clutch'; M.c = 1; }
+  } else {
+    [0,1].forEach(s=>{ M.prev[s].clutch = {off:picks[s].off, def:picks[s].def}; });
+    out = liveSimClutch(M, picks, rng);
+    const margin = Math.abs(M.score[0]-M.score[1]), played = M.c;
+    if(played>=3 ? margin>0 : margin > 3*(3-played)) M.stage = 'final';
+    else if(played>=7){
+      // Four overtime possessions each and still level: one free throw decides it.
+      const s = rng()<.5 ? 0 : 1, star = liveCourt(M, s).reduce((a,b)=>b.eff>a.eff ? b : a);
+      M.score[s]++; M.line[s][4]++; liveBump(M, s, star.p.n, 0, 1);
+      out.ev.push([0, s, 'w', star.p.n, 1]);
+      M.stage = 'final';
+    } else M.c++;
+  }
+  M.last = {kind:M0.kind, q:M0.q, c:M0.c, from, ev:out.ev, notes:out.notes, picks:picks.map(p=>({off:p.off, def:p.def, to:!!p.to}))};
+  M.round++;
+  return M;
+}
+function liveTryResolve(){
+  const M = live.M, my = liveSide(), peer = live.peer, now = Date.now();
+  if(!M || M.stage!=='pick' || M.arb!==my || live.view!=='pick') return;
+  const mine = live.myPick && live.myPick.r===M.round && live.myPick.n===M.n ? live.myPick : null;
+  if(!mine) return;
+  const theirs = peer && peer.bot ? liveBotPick(M, 1-my)
+    : (peer && !peer.left && peer.pick && peer.pick.r===M.round && peer.pick.n===M.n ? peer.pick : null);
+  if(!theirs && !livePeerGone() && now < live.deadline + liveMs(LIVE_GRACE)) return;
+  const picks = []; picks[my] = mine; picks[1-my] = theirs;
+  const next = liveResolve(M, picks);
+  live.net.send({t:'s', v:LIVE_PROTO, cid:live.cid, M:next});
+  liveAdopt(next, true);
+}
+
+/* ----- my side of a period ----- */
+function liveStartPick(){
+  const M = live.M, my = liveSide(), prev = M.prev[my][M.kind];
+  live.view = 'pick'; live.myPick = null; live.subPick = null;
+  if(M.kind==='q'){
+    const subs = {};
+    Object.entries(M.subs[my] || {}).forEach(([st,b])=>{ if(!M.out[my].includes(b)) subs[st] = b; });
+    live.sel = {off:prev ? prev.off : 'bal', def:prev ? prev.def : 'bal', to:false, subs};
+  } else live.sel = {off:prev ? prev.off : 'iso', def:prev ? prev.def : 'double'};
+  live.deadline = Date.now() + liveMs(LIVE_PICK_SECONDS[M.kind]);
+  vibrate(30);
+  renderLive();
+}
+function liveSel(kind, val){
+  if(!live || live.view!=='pick' || live.myPick) return;
+  if(kind==='to') live.sel.to = !live.sel.to && live.M.to[liveSide()]>0;
+  else live.sel[kind] = val;
+  renderLive();
+}
+function liveSubOpen(i){
+  if(!live || live.view!=='pick' || live.myPick) return;
+  live.subPick = live.subPick===i ? null : i;
+  renderLive();
+}
+function liveSetSub(i, j){
+  if(!live || live.view!=='pick' || live.myPick || live.M.kind!=='q') return;
+  const my = liveSide(), r = liveRosterOf(live.M.codes[my]).roster, st = r.starters[i], b = r.bench[j];
+  if(!st || !b || live.M.out[my].includes(b.n) || Object.values(live.sel.subs).includes(b.n)) return;
+  live.sel.subs[st.n] = b.n; live.subPick = null;
+  renderLive();
+}
+function liveClearSub(i){
+  if(!live || live.view!=='pick' || live.myPick || live.M.kind!=='q') return;
+  const st = liveRosterOf(live.M.codes[liveSide()]).roster.starters[i];
+  if(st) delete live.sel.subs[st.n];
+  live.subPick = null;
+  renderLive();
+}
+function liveLock(){
+  if(!live || live.view!=='pick' || live.myPick) return;
+  live.myPick = Object.assign({r:live.M.round, n:live.M.n}, live.sel);
+  live.subPick = null;
+  livePing();
+  renderLive();
+  if(live.M.arb===liveSide()) liveTryResolve();
+}
+function liveToggleReady(){
+  if(!live) return;
+  live.ready = !live.ready;
+  livePing(); renderLive(); liveSync();
+}
+function liveSetName(value){
+  if(!live) return;
+  saveDuelPlayerName(value);
+  liveRefreshMe();
+  renderLive(); livePing();
+}
+function liveTick(){
+  if(!live) return;
+  const now = Date.now(), M = live.M, my = liveSide();
+  if(now - live.lastPing > 3000) livePing();
+  if(!M && !live.me.code && navCurrent==='screen-live'){ if(live.bot) liveBotNewOpponent(); else liveRefreshMe(); }
+  if(live.view==='pick' && M){
+    if(!live.myPick && now >= live.deadline) liveLock();
+    liveUpdateTimer();
+    // The arbiter is silent long after the deadline: take the match over.
+    if(live && M.arb!==my && live.myPick && now > live.deadline + liveMs(LIVE_TAKEOVER) && (!live.peer || live.peer.left || now - live.peer.seen > LIVE_OFFLINE*1000)) M.arb = my;
+  }
+  if(live) liveSync();
+}
+
+/* ----- playing a resolved period on screen ----- */
+function liveClock(sec){ return Math.floor(sec/60) + ':' + String(sec%60).padStart(2,'0'); }
+function livePeriodLabel(kind, q, c){ return kind==='q' ? LT('qLabel', q) : (c<=3 ? LT('qLabel', 4) : LT('ot')); }
+function liveEventText(e){
+  const k = e[2], name = e[3];
+  if(k==='3' || k==='2') return `<b>${name}</b> ${LT(k==='3' ? 'f3' : 'f2')}${e[4] ? ` <small>(${shortName(e[4])})</small>` : ''}`;
+  if(k==='f') return `<b>${name}</b> · ${LT('fft', e[4])}`;
+  if(k==='w') return `<b>${name}</b> ${LT('fwin')}`;
+  return `${name} ${LT(e[4]===3 ? 'fm3' : 'fm2')}`;
+}
+function livePlay(){
+  const M = live.M, L = M.last, my = liveSide(), me = live;
+  live.view = 'play';
+  renderLive();
+  const evs = L.ev, sc = L.from.slice();
+  const gap = (L.kind==='q' ? 13000/Math.max(1, evs.length) : 1900) / liveSpeed();
+  let i = 0;
+  const step = () => {
+    if(live!==me || live.M!==M || live.view!=='play') return;
+    const feed = document.getElementById('lvFeed');
+    if(i>=evs.length){
+      if(feed) feed.insertAdjacentHTML('afterbegin', liveRecapHtml());
+      me.playTimer = setTimeout(()=>{ if(live===me && live.M===M) livePlayDone(); }, liveMs(L.kind==='q' ? 3 : 2.4));
+      return;
+    }
+    const e = evs[i++], k = e[2], got = k==='3' ? 3 : k==='2' ? 2 : (k==='f' || k==='w') ? e[4] : 0;
+    sc[e[1]] += got;
+    if(got){
+      const el = document.getElementById('lvS' + e[1]);
+      if(el){ el.textContent = sc[e[1]]; el.classList.add('pulse'); setTimeout(()=>el.classList.remove('pulse'), 220); }
+    }
+    const per = document.getElementById('lvPeriod');
+    if(per) per.textContent = livePeriodLabel(L.kind, L.q, L.c) + ' · ' + liveClock(e[0]);
+    if(feed) feed.insertAdjacentHTML('afterbegin', `<div class="lv-ev ${e[1]===my ? 'me' : ''} ${got ? '' : 'miss'}"><span class="lv-clock">${liveClock(e[0])}</span><span>${liveEventText(e)}</span><span class="lv-sc">${sc[my]}–${sc[1-my]}</span></div>`);
+    me.playTimer = setTimeout(step, gap);
+  };
+  me.playTimer = setTimeout(step, liveMs(L.kind==='q' ? .6 : 1.1));
+}
+function livePlayDone(){
+  if(live.M.stage==='final') liveShowFinal(); else liveStartPick();
+}
+function liveShowFinal(){
+  live.view = 'final';
+  liveRecord();
+  vibrate(60);
+  renderLive();
+}
+// Head-to-head record against this opponent, kept on this device.
+function liveRecord(){
+  const M = live.M, my = liveSide();
+  if(live.recorded===M.n || M.score[0]===M.score[1]) return;
+  live.recorded = M.n;
+  const name = liveRosterOf(M.codes[1-my]).roster.name;
+  try{
+    const all = JSON.parse(localStorage.getItem('dd_live_h2h') || '{}');
+    const rec = all[name] || {w:0, l:0};
+    if(M.score[my] > M.score[1-my]) rec.w++; else rec.l++;
+    all[name] = rec;
+    localStorage.setItem('dd_live_h2h', JSON.stringify(all));
+  }catch(e){}
+}
+function liveHeadToHead(name){
+  try{ return (JSON.parse(localStorage.getItem('dd_live_h2h') || '{}'))[name] || null; }catch(e){ return null; }
+}
+
+/* ----- rendering ----- */
+function liveSig(){
+  const p = live.peer, M = live.M;
+  return [live.status, live.view, live.me.code, live.ready, live.full, !!live.myPick, live.leaveArmed,
+    p ? [p.cid, p.code, p.name, p.ready, p.left, livePeerOffline(), !!(M && p.pick && p.pick.r===M.round && p.pick.n===M.n)].join(',') : '-'].join('|');
+}
+function liveRenderIfChanged(){
+  if(!live || navCurrent!=='screen-live' || live.view==='play') return;
+  if(liveSig()===live.sig) return;
+  const a = document.activeElement;
+  if(a && a.id==='liveName') return;
+  renderLive();
+}
+function renderLive(){
+  const el = document.getElementById('liveScreenBody');
+  if(!el || !live) return;
+  live.sig = liveSig();
+  el.innerHTML = live.view==='lobby' ? liveLobbyHtml() : live.view==='final' ? liveFinalHtml() : live.view==='pick' ? livePickHtml() : livePlayHtml();
+  if(live.view==='pick') liveUpdateTimer();
+}
+function liveChipsHtml(){
+  const chips = [];
+  if(live.net.local) chips.push(`<span class="cap-status warn">${LT('testMode')}</span>`);
+  else chips.push(`<span class="cap-status ${live.status==='open' ? 'good' : 'warn'}">${LT(live.status==='open' ? 'netOpen' : live.status==='error' ? 'netError' : live.status==='closed' ? 'netClosed' : 'netConnecting')}</span>`);
+  return `<div class="lv-chips">${chips.join('')}</div>`;
+}
+function livePeerNoteHtml(){
+  const p = live.peer;
+  if(!p || !live.M) return '';
+  if(p.left) return `<div class="lv-note warn">${LT('left', p.name)}</div>`;
+  if(livePeerOffline()) return `<div class="lv-note warn">${LT('offline', p.name)}</div>`;
+  return '';
+}
+function liveLobbyHtml(){
+  const me = liveRosterOf(live.me.code), peer = live.peer, opp = peer && peer.code ? liveRosterOf(peer.code) : null;
+  const tgApp = window.Telegram && window.Telegram.WebApp;
+  let link = duelBaseUrl() + '#live=' + live.room;
+  if(DUEL_TG_APP_LINK && tgApp && tgApp.initData) link = duelTelegramLink(link);
+  const text = LT('shareText', duelPlayerName()).replace(/['"]/g, '’');
+  const head = `<div class="team-select-head"><div class="season-label">${LT('kicker')} · ${LT('room', live.room.toUpperCase())}</div>
+      <div class="team-select-title">${LT('lobbyTitle')}</div><p>${LT('lobbyCopy')}</p>${liveChipsHtml()}</div>`;
+  const leave = `<button class="lv-leave" onclick="liveLeaveClick()">${LT(live.bot ? 'backTeam' : 'leave')}</button>`;
+  if(live.bot){
+    const d = liveBotDiff();
+    return `<div class="team-select-head"><div class="season-label">${LT('botKicker')}</div><div class="team-select-title">${LT('lobbyTitle')}</div><p>${LT('botLobbyCopy')}</p></div>`
+      + (me && me.roster && opp && opp.roster ? `<div class="live-section" style="text-align:center;">${LT('diffLabel')}</div>
+        <div class="lv-diff">${Object.keys(LIVE_BOT_DIFF).map(k=>`<button class="rest-btn ${k===d ? 'on' : ''}" onclick="liveBotNewOpponent('${k}')">${LT('diff_'+k)}</button>`).join('')}</div>
+        <div class="duel-teams" style="margin-top:14px;">${duelRosterHtml(me.roster, me.info, true)}${duelRosterHtml(opp.roster, opp.info, false)}</div>
+        <div class="actions-row"><button class="btn" onclick="liveToggleReady()">${LT('botStart')}</button><button class="btn ghost" onclick="liveBotNewOpponent()">${LT('newOpp')}</button></div>`
+        : `<div class="lv-note warn">${LT('needTeam')}</div>`)
+      + leave;
+  }
+  if(live.full) return head + `<div class="lv-note warn">${LT('full')}</div>` + leave;
+  const share = `<div class="duel-form"><label class="duel-label" for="duelLinkInput">${LT('sendLink')}</label>
+      <input class="duel-input" id="duelLinkInput" readonly value="${link}" onclick="this.select()">
+      <div class="season-event-actions" style="flex-wrap:wrap;"><button class="btn" id="duelCopyBtn" onclick="duelCopyLink()">${LT('copyBtn')}</button>
+      <button class="btn ghost" onclick="duelShareTelegram('${text}')">${LT('tgBtn')}</button>
+      ${navigator.share ? `<button class="btn ghost" onclick="duelShareLink('${text}')">${LT('shareBtn')}</button>` : ''}</div></div>`;
+  const mine = me && me.roster ? duelRosterHtml(me.roster, me.info, true)
+    : `<div class="lv-empty"><b>${LT('noTeamTitle')}</b><p>${LT('noTeamCopy')}</p><button class="btn" onclick="liveGoDraft()">${LT('draftBtn')}</button></div>`;
+  let theirs;
+  if(opp && opp.roster) theirs = duelRosterHtml(opp.roster, opp.info, false);
+  else if(opp && opp.error==='version') theirs = `<div class="duel-team lv-wait">${LT('badVersion')}</div>`;
+  else theirs = `<div class="duel-team lv-wait">${peer ? LT('drafting', peer.name) : LT(live.role==='host' ? 'waitFriend' : 'waitHost')}</div>`;
+  const both = !!(me && me.roster && opp && opp.roster);
+  const chip = on => `<span class="cap-status ${on ? 'good' : ''}">${LT(on ? 'chipReady' : 'chipWait')}</span>`;
+  const name = `<div class="duel-form"><label class="duel-label" for="liveName">${LT('yourName')}</label>
+      <input class="duel-input" id="liveName" maxlength="16" value="${duelPlayerName()}" onchange="liveSetName(this.value)"></div>`;
+  return head + (both ? '' : name + (live.role==='host' || !peer ? share : ''))
+    + `<div class="duel-teams" style="margin-top:18px;">${mine}${theirs}</div>`
+    + (both ? `<div class="lv-ready"><span>${me.roster.name} ${chip(live.ready)}</span><span>${opp.roster.name} ${chip(peer.ready)}</span></div>
+        <div class="actions-row"><button class="btn${live.ready ? ' ghost' : ''}" onclick="liveToggleReady()">${LT(live.ready ? 'unready' : 'ready')}</button></div>` : '')
+    + leave;
+}
+function liveLineHtml(hideLast){
+  const M = live.M, my = liveSide();
+  const n = Math.max(0, M.line[0].length - (hideLast ? 1 : 0));
+  if(!n) return '';
+  const cells = [];
+  for(let i=0;i<n;i++) cells.push(`<span>${i<4 ? LT('qLabel', i+1) : LT('ot')} ${M.line[my][i]}–${M.line[1-my][i]}</span>`);
+  return `<div class="lv-line">${cells.join('')}</div>`;
+}
+function liveBoardHtml(score, label, hideLast){
+  const M = live.M, my = liveSide();
+  const side = s => {
+    const r = liveRosterOf(M.codes[s]).roster, abbr = NAME_TO_ABBR[r.team.name] || '';
+    return `<div class="lv-side" style="--tc:${TEAM_COLORS[abbr] || '#666'}"><div class="lv-name">${r.name}</div><div class="lv-team">${s===my ? LT('you') + ' · ' : ''}${r.team.name}</div></div>`;
+  };
+  return `<div class="lv-board">${side(my)}<div class="lv-mid"><div class="lv-score"><span id="lvS${my}">${score[my]}</span><i>:</i><span id="lvS${1-my}">${score[1-my]}</span></div>
+      <div class="lv-period" id="lvPeriod">${label}</div></div>${side(1-my)}</div>${liveLineHtml(hideLast)}`;
+}
+function livePlayHtml(){
+  const L = live.M.last;
+  return liveBoardHtml(L.from, livePeriodLabel(L.kind, L.q, L.c) + (L.kind==='q' ? ' · 12:00' : ''), L.kind==='q' || L.c===4)
+    + `<div class="lv-feed" id="lvFeed"></div>`;
+}
+// What both sides called in the period that was just played, from my point of view.
+function liveRecapHtml(){
+  const M = live.M, L = M.last, my = liveSide();
+  if(!L) return '';
+  const names = [0,1].map(s=>liveRosterOf(M.codes[s]).roster.name);
+  const op = L.kind==='q' ? 'o_' : 'co_', dp = L.kind==='q' ? 'd_' : 'cd_';
+  const row = s => {
+    const off = L.picks[s].off, def = L.picks[1-s].def;
+    const read = LIVE_COUNTER[off]===def, even = L.kind==='q' && (off==='bal' || def==='bal');
+    const cls = even ? '' : ((read ? s!==my : s===my) ? 'ok' : 'bad');
+    return `<div class="lv-recap-row"><span>${s===my ? LT('recapYou') : names[s]}</span>${LT(op+off)} <i>${LT('vs')}</i> ${LT(dp+def)}<b class="${cls}">${LT(even ? 'rEven' : read ? 'rRead' : 'rOpen')}</b></div>`;
+  };
+  const notes = (L.notes||[]).map(n=>`<div class="lv-recap-note">${n.k==='run' ? LT('nRun', n.n, names[n.s]) : n.k==='inj' ? LT('nInj', n.p) : LT('nTo', names[n.s])}</div>`).join('');
+  const title = L.kind==='q' ? LT('recapQ', L.q, M.line[my][L.q-1], M.line[1-my][L.q-1]) : LT('recapC');
+  return `<div class="lv-recap"><div class="lv-recap-title">${title}</div>${row(my)}${row(1-my)}${notes}</div>`;
+}
+function liveUpdateTimer(){
+  const fill = document.getElementById('lvTimerFill'), txt = document.getElementById('lvTimerSec'), box = document.getElementById('lvTimer');
+  if(!fill || !live || !live.M) return;
+  const total = liveMs(LIVE_PICK_SECONDS[live.M.kind]), left = Math.max(0, live.deadline - Date.now());
+  fill.style.width = (live.myPick ? 0 : Math.round(left/total*100)) + '%';
+  if(txt) txt.textContent = live.myPick ? '' : LT('secs', Math.ceil(left/1000));
+  if(box) box.classList.toggle('low', !live.myPick && left < total*0.25);
+}
+function livePickHtml(){
+  const M = live.M, my = liveSide(), sel = live.sel, locked = !!live.myPick, dis = locked ? 'disabled' : '';
+  const oppName = liveRosterOf(M.codes[1-my]).roster.name, peer = live.peer;
+  const peerLocked = !!(peer && peer.pick && peer.pick.r===M.round && peer.pick.n===M.n);
+  const status = locked ? LT('waitFor', oppName) : (peerLocked ? LT('peerLocked', oppName) : '');
+  const label = M.kind==='q' ? LT('qLabel', M.q) + ' · 12:00' : (M.c<=3 ? LT('qLabel', 4) + ' · ' + liveClock(LIVE_CLUTCH_CLOCK[M.c-1]) : LT('ot'));
+  const grid = (kind, keys, prefix) => `<div class="tactic-grid">${keys.map(k=>`<button class="clutch-choice ${sel[kind]===k ? 'selected' : ''}" ${dis} onclick="liveSel('${kind}','${k}')"><b>${LT(prefix+k)}</b><span>${LT(prefix+k+'_d')}</span></button>`).join('')}</div>`;
+  const head = liveBoardHtml(M.score, label, false) + livePeerNoteHtml()
+    + `<div class="lv-timer" id="lvTimer"><div class="lv-timer-bar"><span id="lvTimerFill"></span></div><div class="lv-timer-txt"><span id="lvTimerSec"></span><span>${status}</span></div></div>`;
+  const foot = `<div class="live-actions"><button class="btn" ${dis} onclick="liveLock()">${LT(locked ? 'locked' : 'lock')}</button></div>
+    <button class="lv-leave" onclick="liveLeaveClick()">${LT(live.leaveArmed ? 'leaveSure' : 'leaveMatch')}</button>`;
+  if(M.kind==='clutch'){
+    return head + `<div class="lv-title">${M.c<=3 ? LT('clutchTitle', liveClock(LIVE_CLUTCH_CLOCK[M.c-1])) : LT('otTitle')}</div><div class="lv-sub">${LT('clutchSub')}</div>`
+      + (M.last ? liveRecapHtml() : '')
+      + `<div class="live-section">${LT('yourPoss')}</div>${grid('off', LIVE_COFF, 'co_')}
+         <div class="live-section">${LT('theirPoss')}</div>${grid('def', LIVE_CDEF, 'cd_')}` + foot;
+  }
+  const r = liveRosterOf(M.codes[my]).roster;
+  const view = Object.assign({}, M, {subs: my===0 ? [sel.subs, M.subs[1]] : [M.subs[0], sel.subs]});
+  const court = liveCourt(view, my), onCourt = new Set(court.map(c=>c.p.n));
+  const rows = court.map(c=>{
+    const level = c.f>=70 ? 'high' : (c.f>=40 ? 'mid' : ''), stOut = M.out[my].includes(c.st.n);
+    let btn;
+    if(c.manual) btn = `<button class="rest-btn on" ${dis} onclick="liveClearSub(${c.i})">↩ ${shortName(c.st.n)}</button>`;
+    else btn = `<button class="rest-btn ${live.subPick===c.i ? 'on' : ''}" ${dis} onclick="liveSubOpen(${c.i})">${live.subPick===c.i ? LT('cancel') : LT('sub')}</button>`;
+    let picker = '';
+    if(live.subPick===c.i && !locked){
+      const free = r.bench.map((b,j)=>({b, j})).filter(x=>!onCourt.has(x.b.n) && !M.out[my].includes(x.b.n))
+        .sort((x,y)=>(y.b.r - (y.b.pos!==c.pos ? 3 : 0)) - (x.b.r - (x.b.pos!==c.pos ? 3 : 0)));
+      picker = `<div class="sub-picker"><div class="sub-picker-title">${LT('whoIn', c.p.n)}</div>${free.length
+        ? free.map(x=>{ const bf = Math.round(M.fat[my][x.b.n]||0); return `<button class="sub-choice" onclick="liveSetSub(${c.i},${x.j})"><b>${x.b.n}</b><span>${x.b.pos||''} · ${x.b.r} OVR${x.b.pos && x.b.pos!==c.pos ? ' · ' + LT('oop') : ''}${bf>=40 ? ` · ${LT('fat')} ${bf}%` : ''}</span></button>`; }).join('')
+        : `<div class="sub-picker-empty">${LT('noBench')}</div>`}</div>`;
+    }
+    const tag = c.hurt ? `<small class="sub-for">${LT('hurtTag')}</small>` : (c.sub ? `<small class="sub-for">${stOut ? LT('outTag') + ' ' + shortName(c.st.n) : LT('forP', shortName(c.st.n))}</small>` : '');
+    return `<div class="fatigue-row ${c.sub ? 'subbed' : ''}"><span class="fatigue-pos">${c.pos}</span>
+        <span class="fatigue-name">${c.p.n}<small>${c.p.r}</small>${tag}</span>
+        <span class="fatigue-bar" title="${LT('fat')} ${c.f}%"><span class="fatigue-fill ${level}" style="width:${c.f}%;display:block"></span></span>${btn}</div>${picker}`;
+  }).join('');
+  const oppCourt = liveCourt(M, 1-my), oppStar = oppCourt.reduce((a,b)=>b.eff>a.eff ? b : a);
+  const their = oppCourt.map(c=>`<span>${c===oppStar ? '★ ' : ''}<b>${shortName(c.p.n)}</b> ${c.p.r}${c.f>=40 ? ` · ${c.f}%` : ''}${c.hurt ? ' 🚑' : ''}</span>`).join('');
+  return head + `<div class="lv-title">${LT('qTitle', M.q)}</div><div class="lv-sub">${LT('qSub')}</div>`
+    + (M.last ? liveRecapHtml() : '')
+    + `<div class="live-section">${LT('offense')}</div>${grid('off', LIVE_OFF, 'o_')}
+       <div class="live-section">${LT('defense')}</div>${grid('def', LIVE_DEF, 'd_')}
+       <div class="live-section">${LT('lineup')}</div><div>${rows}</div>
+       <div class="tactic-grid" style="margin-top:10px;"><button class="clutch-choice ${sel.to ? 'selected' : ''}" ${M.to[my]>0 && !locked ? '' : 'disabled'} onclick="liveSel('to')"><b>${LT('timeout', M.to[my])}</b><span>${LT('timeoutDesc')}</span></button></div>
+       <div class="live-section">${LT('their')}</div><div class="lv-their">${their}</div>` + foot;
+}
+function liveFinalHtml(){
+  const M = live.M, my = liveSide(), peer = live.peer;
+  const names = [0,1].map(s=>liveRosterOf(M.codes[s]).roster.name);
+  const won = M.score[my] > M.score[1-my], winner = M.score[0] > M.score[1] ? 0 : 1;
+  const periods = M.line[0].length;
+  const th = Array.from({length:periods}, (_,i)=>`<th>${i<4 ? LT('qLabel', i+1) : LT('ot')}</th>`).join('');
+  const tr = s => `<tr><td>${names[s]}</td>${M.line[s].map(v=>`<td>${v}</td>`).join('')}<td>${M.score[s]}</td></tr>`;
+  const lines = s => Object.entries(M.box[s]).map(([n,v])=>({n, v, val:v[0] + v[1]*.7 + v[2]*.7})).sort((a,b)=>b.val-a.val);
+  const mvp = lines(winner)[0];
+  const top = s => `<div class="duel-team"><div class="duel-team-name">${names[s]}</div>${lines(s).sort((a,b)=>b.v[0]-a.v[0]).slice(0,4).map(x=>`<div class="duel-row"><span class="duel-name">${x.n}</span><span class="duel-r">${x.v[0]}</span></div><div class="duel-team-meta" style="margin:0 0 4px;">${LT('statLine', x.v[0], x.v[1], x.v[2])}</div>`).join('')}</div>`;
+  const rec = liveHeadToHead(names[1-my]);
+  const gone = livePeerGone();
+  let status = '';
+  if(!gone && !peer.bot){
+    if(live.ready) status = LT('rematchWait', names[1-my]);
+    else if(peer.ready) status = LT('rematchAsk', names[1-my]);
+  }
+  return liveBoardHtml(M.score, LT('finalLabel') + (periods>4 ? ' · ' + LT('ot') : ''), false)
+    + `<div class="lv-title ${won ? 'win' : ''}">${won ? LT('finalWin') : LT('finalLose', names[1-my])}</div>`
+    + (rec ? `<div class="lv-sub">${LT('h2h', names[1-my], rec.w, rec.l)}</div>` : '')
+    + `<table class="lv-table"><tr><th></th>${th}<th>${LT('total')}</th></tr>${tr(my)}${tr(1-my)}</table>`
+    + (mvp ? `<div class="lv-mvp"><div class="lv-mvp-kicker">${LT('mvp')}</div><div class="lv-mvp-name">${mvp.n}</div><div class="lv-mvp-line">${LT('statLine', mvp.v[0], mvp.v[1], mvp.v[2])}</div></div>` : '')
+    + liveRecapHtml()
+    + `<div class="live-section">${LT('top')}</div><div class="duel-teams">${top(my)}${top(1-my)}</div>`
+    + (status ? `<div class="lv-note">${status}</div>` : '')
+    + `<div class="actions-row">${gone ? '' : `<button class="btn${live.ready ? ' ghost' : ''}" onclick="liveToggleReady()">${LT(live.ready ? 'rematchCancel' : 'rematch')}</button>`}${peer && peer.bot ? `<button class="btn ghost" onclick="liveBotNewOpponent()">${LT('newOpp')}</button>` : ''}<button class="btn ghost" onclick="liveLeaveClick()">${LT('backTeam')}</button></div>`;
+}
+
 /* ---------------- INITIAL SCREEN ---------------- */
 // The mode picker is the first screen, the franchise picker follows.
 window.addEventListener('DOMContentLoaded', ()=>{
@@ -3378,9 +4438,9 @@ window.addEventListener('DOMContentLoaded', ()=>{
   loadRunNumberCache();
   renderTeamChoices();
   loadSavedRun();
-  if(!readDuelFromLocation()) showScreen('screen-mode');
+  if(!readLiveFromLocation(false) && !readDuelFromLocation()) showScreen('screen-mode');
 });
-window.addEventListener('hashchange', ()=>{ readDuelFromLocation(); });
+window.addEventListener('hashchange', ()=>{ if(!readLiveFromLocation(true)) readDuelFromLocation(); });
 
 /* ---------------- SCREEN CONTROL ---------------- */
 
@@ -3392,7 +4452,7 @@ function triggerBonusAfterPick(next){
 
 function showScreen(id){
   document.body.classList.toggle('in-game', !['screen-mode','screen-team','screen-start','screen-duel'].includes(id));
-  ['screen-mode','screen-duel','screen-start','screen-team','screen-draft','screen-simulate','screen-awards','screen-results','screen-playoffs','screen-history','screen-collection','screen-hof','screen-share','screen-trade'].forEach(s=>{
+  ['screen-mode','screen-duel','screen-live','screen-start','screen-team','screen-draft','screen-simulate','screen-awards','screen-results','screen-playoffs','screen-history','screen-collection','screen-hof','screen-share','screen-trade'].forEach(s=>{
     const el=document.getElementById(s);
     if(!el) return;
     const shouldShow=s===id;
@@ -3401,6 +4461,7 @@ function showScreen(id){
   });
   updateNavBack(id);
   if(id==='screen-mode') renderResumeCard();
+  renderLiveSlots();
 }
 function resetToStart(){
   if(runPhase && savedRun) showCapToast('Your run is saved. Continue it from the first screen.', 'SAVED RUN');
